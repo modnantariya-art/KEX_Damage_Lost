@@ -670,30 +670,11 @@ function showLogin(note){
     if(!pass.value){ pass.classList.add('err'); return; }
     btn.disabled=true; msg.innerHTML='<div class="desc">กำลังตรวจสอบ…</div>';
     var tmp={ password:pass.value, user:'' };
-    callApi('getBootstrap',[],tmp).then(function(boot){ pickName(tmp, boot); })
+    callApi('getBootstrap',[],tmp).then(function(boot){ saveSession({ password:tmp.password, user:'ทีม Claim' }); start(boot); })
       .catch(function(e){ btn.disabled=false; msg.innerHTML='<div class="msg bad">'+esc(e.message)+'</div>'; });
   };
   btn.onclick=submit;
   pass.onkeydown=function(e){ if(e.key==='Enter') submit(); };
-}
-function pickName(tmp, boot){
-  var names=(boot.lists.owner||[]);
-  var m=document.getElementById('main');
-  m.innerHTML='<div class="card pad" style="max-width:440px;width:100%;margin:8vh auto 0;display:flex;flex-direction:column;gap:16px">'+
-    '<div><div style="font-size:20px;font-weight:700">คุณคือใคร</div><div class="desc">ชื่อนี้จะถูกบันทึกในประวัติการแก้ไขเคส</div></div>'+
-    '<label class="f" for="lg-name"><span class="lab">ชื่อผู้ใช้</span><input type="text" id="lg-name" list="lg-names" autocomplete="off"></label>'+
-    '<datalist id="lg-names">'+names.map(function(n){return '<option value="'+esc(n)+'">';}).join('')+'</datalist>'+
-    (names.length?'':'<div class="desc" style="font-size:13px">เพิ่มรายชื่อทีมได้ที่ชีต Lists คอลัมน์ O</div>')+
-    '<button type="button" class="btn primary" id="lg-ok" style="justify-content:center">เข้าสู่ระบบ</button></div>';
-  var inp=document.getElementById('lg-name');
-  inp.focus();
-  var ok=function(){
-    var n=inp.value.trim(); if(!n){ inp.classList.add('err'); return; }
-    saveSession({ password:tmp.password, user:n });
-    start(boot);
-  };
-  document.getElementById('lg-ok').onclick=ok;
-  inp.onkeydown=function(e){ if(e.key==='Enter') ok(); };
 }
 function start(bootIn){
   setNav(true);
