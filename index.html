@@ -269,6 +269,15 @@ function callApi(action, args, sess){
       var err=new Error(j.error||'เกิดข้อผิดพลาด'); err.auth = j.auth===false; throw err;
     }, function(e){ if(e instanceof TypeError) throw new Error('เชื่อมต่อ Google Sheet ไม่ได้ ตรวจอินเทอร์เน็ต หรือลิงก์ตัวเชื่อม (API_URL)'); throw e; });
 }
+/* รองรับตัวเชื่อมรุ่นเก่าที่ยังไม่มีคำสั่ง init */
+function initCall(sess){
+  return callApi('init',[],sess).catch(function(e){
+    if(/ไม่รู้จักคำสั่ง init/.test(e.message)){
+      return Promise.all([callApi('getBootstrap',[],sess), callApi('getCases',[],sess)]).then(function(r){ return { boot:r[0], cases:r[1] }; });
+    }
+    throw e;
+  });
+}
 function api(fn){
   var args = Array.prototype.slice.call(arguments,1);
   return callApi(fn,args).catch(function(e){ if(e.auth){ saveSession(null); showLogin('รหัสผ่านถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่'); } throw e; });
@@ -651,7 +660,7 @@ function bind(){
       if(!p.detail.trim()){ $('fu-detail').classList.add('err'); $('fu-detail').focus(); return; }
       S.busy=true; setBusy(true); S.form.draft=collectForm();
       api('addFollowup',p).then(function(r){ S.busy=false; if(!r.ok){ toast(r.message); setBusy(false); return; } toast(r.message);
-        applyBundle(r); render(); })
+        applyBundle(r); render(); if(!r.detail){ refreshCases().then(function(){ loadDetail(S.form.caseId); }); } })
       .catch(function(e){ S.busy=false; setBusy(false); toast('ไม่สำเร็จ: '+(e.message||e)); });
     };
   }
@@ -679,7 +688,7 @@ function showLogin(note){
     if(!pass.value){ pass.classList.add('err'); return; }
     btn.disabled=true; msg.innerHTML='<div class="desc">กำลังตรวจสอบ…</div>';
     var tmp={ password:pass.value, user:'' };
-    callApi('init',[],tmp).then(function(d){ saveSession({ password:tmp.password, user:'ทีม Claim' }); start(d); })
+    initCall(tmp).then(function(d){ saveSession({ password:tmp.password, user:'ทีม Claim' }); start(d); })
       .catch(function(e){ btn.disabled=false; msg.innerHTML='<div class="msg bad">'+esc(e.message)+'</div>'; });
   };
   btn.onclick=submit;
@@ -699,7 +708,7 @@ function start(initData){
   if(cache && cache.boot && cache.cases){ S.boot=cache.boot; S.cases=cache.cases; go('dashboard'); }
   else document.getElementById('main').innerHTML='<div class="loading">กำลังโหลดข้อมูล…</div>';
   setSync(true);
-  api('init').then(function(d){ setSync(false); apply(d); }).catch(function(e){
+  initCall().catch(function(e){ if(e.auth){ saveSession(null); showLogin('รหัสผ่านถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่'); } throw e; }).then(function(d){ setSync(false); apply(d); }).catch(function(e){
     setSync(false);
     if(e.auth) return;
     if(S.boot){ toast('อัปเดตข้อมูลไม่สำเร็จ: '+(e.message||e)); return; }
