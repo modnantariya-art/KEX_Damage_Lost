@@ -134,6 +134,7 @@ tr.late td{background:#FFF7F7}
   <main id="main"><div class="loading">กำลังโหลดข้อมูล…</div></main>
 </div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="sync" role="status" aria-live="polite" style="position:fixed;right:16px;top:12px;display:none;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--muted);z-index:9">กำลังอัปเดตข้อมูลล่าสุด…</div>
 
 <script>
 /* ============================================================ ตั้งค่า
@@ -255,6 +256,10 @@ function toast(t){ var el=document.getElementById('toast'); el.textContent=t; el
 var SESSION_KEY='kexClaimSession';
 var SESSION=(function(){ try{ return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); }catch(e){ return null; } })();
 function saveSession(s){ SESSION=s; try{ if(s) localStorage.setItem(SESSION_KEY,JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }catch(e){} }
+var CACHE_KEY='kexClaimCache';
+function saveCache(){ try{ localStorage.setItem(CACHE_KEY, JSON.stringify({ boot:S.boot, cases:S.cases })); }catch(e){} }
+function readCache(){ try{ return JSON.parse(localStorage.getItem(CACHE_KEY)||'null'); }catch(e){ return null; } }
+function setSync(on){ var el=document.getElementById('sync'); if(el) el.style.display = on ? 'inline-flex' : 'none'; }
 function callApi(action, args, sess){
   sess = sess || SESSION || {};
   return fetch(API_URL, { method:'POST', body: JSON.stringify({ action:action, args:args||[], password:sess.password||'', user:sess.user||'' }) })
@@ -272,7 +277,10 @@ function api(fn){
 /* ============================================================ nav */
 function go(page, caseId){
   S.page = page;
-  if(page==='form'){ S.form = { caseId: caseId||null, detail:null, missing:[], message:'', msgType:'' }; }
+  if(page==='form'){
+    var cached = caseId ? S.cases.filter(function(c){return c.case_id===caseId;})[0] : null;
+    S.form = { caseId: caseId||null, detail: cached ? { caseData:cached, followups:null, history:null, partial:true } : null, missing:[], message:'', msgType:'' };
+  }
   document.querySelectorAll('nav button[data-page]').forEach(function(b){
     var on = b.dataset.page===page && (page!=='form' || !caseId);
     if(on) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
@@ -283,7 +291,8 @@ function go(page, caseId){
 }
 document.querySelectorAll('nav button[data-page]').forEach(function(b){ b.addEventListener('click',function(){ go(b.dataset.page); }); });
 
-function refreshCases(){ return api('getCases').then(function(c){ S.cases=c; }); }
+function refreshCases(){ return api('getCases').then(function(c){ S.cases=c; saveCache(); }); }
+function applyBundle(r){ if(r.cases){ S.cases=r.cases; saveCache(); } if(r.detail && S.form.caseId===r.detail.caseData.case_id){ S.form.detail=r.detail; } }
 
 function render(){
   var m=document.getElementById('main');
@@ -526,7 +535,7 @@ function viewForm(){
 
   var side='';
   if(!isNew){
-    var fu=F.detail.followups, hist=F.detail.history;
+    var fu=F.detail.followups||[], hist=F.detail.history||[], partial=!!F.detail.partial;
     side='<aside class="right">'+
       '<section class="card sec"><h3>บันทึกการติดตาม KEX</h3>'+
       '<div class="fgrid" style="grid-template-columns:repeat(2,minmax(0,1fr))"><label class="f" for="fu-date">วันที่<input type="date" id="fu-date" value="'+esc(S.boot.today)+'"></label>'+
@@ -535,9 +544,9 @@ function viewForm(){
       '<label class="f" for="fu-result">ผลที่ได้ / นัดครั้งถัดไป<input type="text" id="fu-result"></label>'+
       '<button type="button" class="btn dark" id="fu-add" style="justify-content:center">เพิ่มบันทึกการติดตาม</button>'+
       '<div style="font-size:12px;color:var(--muted)">บันทึกแล้ว วันค้างในสถานะจะเริ่มนับใหม่</div>'+
-      (fu.length?'<ol class="timeline">'+fu.map(function(x){return '<li><span class="m">'+fmtD(x.followup_date)+' · '+esc(x.channel||'')+' · '+esc(x.by||'')+'</span><span>'+esc(x.detail)+(x.result?' — '+esc(x.result):'')+'</span></li>';}).join('')+'</ol>':'<div class="desc" style="font-size:13px">ยังไม่มีบันทึกการติดตาม</div>')+
+      (partial?'<div class="desc" style="font-size:13px">กำลังโหลดบันทึกการติดตาม…</div>':fu.length?'<ol class="timeline">'+fu.map(function(x){return '<li><span class="m">'+fmtD(x.followup_date)+' · '+esc(x.channel||'')+' · '+esc(x.by||'')+'</span><span>'+esc(x.detail)+(x.result?' — '+esc(x.result):'')+'</span></li>';}).join('')+'</ol>':'<div class="desc" style="font-size:13px">ยังไม่มีบันทึกการติดตาม</div>')+
       '</section>'+
-      '<section class="card sec"><h3>ประวัติ</h3>'+(hist.length?'<ol class="timeline" style="border:none;padding:0">'+hist.map(function(h){return '<li><span class="m">'+esc(h.at)+' · '+esc(h.user)+'</span><span><b>'+esc(h.action)+'</b>'+(h.detail?' · '+esc(h.detail):'')+'</span></li>';}).join('')+'</ol>':'<div class="desc" style="font-size:13px">ยังไม่มีประวัติ</div>')+'</section>'+
+      '<section class="card sec"><h3>ประวัติ</h3>'+(partial?'<div class="desc" style="font-size:13px">กำลังโหลด…</div>':hist.length?'<ol class="timeline" style="border:none;padding:0">'+hist.map(function(h){return '<li><span class="m">'+esc(h.at)+' · '+esc(h.user)+'</span><span><b>'+esc(h.action)+'</b>'+(h.detail?' · '+esc(h.detail):'')+'</span></li>';}).join('')+'</ol>':'<div class="desc" style="font-size:13px">ยังไม่มีประวัติ</div>')+'</section>'+
     '</aside>';
   }
   return '<button type="button" class="btn" id="f-back" style="align-self:flex-start">← กลับไปรายการเคส</button>'+head+(isNew?'':stepper(c))+
@@ -562,14 +571,14 @@ function submitForm(action){
     S.busy=false;
     if(!r.ok){
       S.form.missing=r.missing||[]; S.form.message=r.message+(r.saved?' (ข้อมูลที่กรอกถูกบันทึกไว้แล้ว สถานะยังไม่เปลี่ยน)':''); S.form.msgType='bad';
-      if(r.saved) return refreshCases().then(render);
+      if(r.saved){ S.form.draft=null; applyBundle(r); }
       render(); return;
     }
     toast(r.message+' · '+r.case_id+' · '+r.status);
-    return refreshCases().then(function(){
-      S.form={ caseId:r.case_id, detail:null, missing:[], message:'บันทึกแล้ว · สถานะ '+r.status, msgType:'good' };
-      render(); loadDetail(r.case_id);
-    });
+    S.form={ caseId:r.case_id, detail:null, missing:[], message:'บันทึกแล้ว · สถานะ '+r.status, msgType:'good' };
+    applyBundle(r);
+    render();
+    if(!S.form.detail) loadDetail(r.case_id);
   }).catch(function(e){ S.busy=false; S.form.message='บันทึกไม่สำเร็จ: '+(e.message||e); S.form.msgType='bad'; render(); });
 }
 function setBusy(on){ document.querySelectorAll('#main button').forEach(function(b){ b.disabled=on; }); }
@@ -642,7 +651,7 @@ function bind(){
       if(!p.detail.trim()){ $('fu-detail').classList.add('err'); $('fu-detail').focus(); return; }
       S.busy=true; setBusy(true); S.form.draft=collectForm();
       api('addFollowup',p).then(function(r){ S.busy=false; if(!r.ok){ toast(r.message); setBusy(false); return; } toast(r.message);
-        return refreshCases().then(function(){ loadDetail(S.form.caseId); }); })
+        applyBundle(r); render(); })
       .catch(function(e){ S.busy=false; setBusy(false); toast('ไม่สำเร็จ: '+(e.message||e)); });
     };
   }
@@ -670,25 +679,34 @@ function showLogin(note){
     if(!pass.value){ pass.classList.add('err'); return; }
     btn.disabled=true; msg.innerHTML='<div class="desc">กำลังตรวจสอบ…</div>';
     var tmp={ password:pass.value, user:'' };
-    callApi('getBootstrap',[],tmp).then(function(boot){ saveSession({ password:tmp.password, user:'ทีม Claim' }); start(boot); })
+    callApi('init',[],tmp).then(function(d){ saveSession({ password:tmp.password, user:'ทีม Claim' }); start(d); })
       .catch(function(e){ btn.disabled=false; msg.innerHTML='<div class="msg bad">'+esc(e.message)+'</div>'; });
   };
   btn.onclick=submit;
   pass.onkeydown=function(e){ if(e.key==='Enter') submit(); };
 }
-function start(bootIn){
+function start(initData){
   setNav(true);
-  document.getElementById('main').innerHTML='<div class="loading">กำลังโหลดข้อมูล…</div>';
-  Promise.all([bootIn ? Promise.resolve(bootIn) : api('getBootstrap'), api('getCases')]).then(function(r){
-    S.boot=r[0]; S.cases=r[1];
-    document.getElementById('user').textContent=SESSION.user;
-    go('dashboard');
-  }).catch(function(e){
+  document.getElementById('user').textContent=SESSION.user;
+  var apply=function(d){
+    var first=!S.boot;
+    S.boot=d.boot; S.cases=d.cases; saveCache();
+    if(first) go('dashboard');
+    else if(!(S.page==='form' && S.busy)) render();
+  };
+  if(initData){ apply(initData); return; }
+  var cache=readCache();
+  if(cache && cache.boot && cache.cases){ S.boot=cache.boot; S.cases=cache.cases; go('dashboard'); }
+  else document.getElementById('main').innerHTML='<div class="loading">กำลังโหลดข้อมูล…</div>';
+  setSync(true);
+  api('init').then(function(d){ setSync(false); apply(d); }).catch(function(e){
+    setSync(false);
     if(e.auth) return;
+    if(S.boot){ toast('อัปเดตข้อมูลไม่สำเร็จ: '+(e.message||e)); return; }
     document.getElementById('main').innerHTML='<div class="msg bad">โหลดข้อมูลไม่สำเร็จ: '+esc(e.message||e)+'</div><button type="button" class="btn" onclick="start()">ลองใหม่</button>';
   });
 }
-document.getElementById('logout').onclick=function(){ saveSession(null); showLogin(); };
+document.getElementById('logout').onclick=function(){ saveSession(null); try{ localStorage.removeItem(CACHE_KEY); }catch(e){} S.cases=[]; showLogin(); };
 
 if(!API_URL){
   setNav(false);
