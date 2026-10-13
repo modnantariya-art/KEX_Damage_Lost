@@ -152,7 +152,7 @@ var S = {
 };
 
 var ORDER = ['S1','S2','S3','S4','S5','X1','X2','X3'];
-var REQ = ['owner','kex_notice_date','tracking_no','incident_type','origin_dc','sender','service_type','product_desc','goods_value',
+var REQ = ['owner','kex_notice_date','tracking_no','nim_tracking_no','incident_type','origin_dc','sender','service_type','product_desc','goods_value',
   'cc_action','claim_intent','goods_result','claim_submit_date','claim_amount',
   'kex_decision','kex_decision_date','kex_paid_date','kex_paid_amount','cust_paid_amount','cust_paid_date'];
 
@@ -160,7 +160,8 @@ var FIELDS = {
   B: [
     { k:'owner', l:'ผู้รับผิดชอบ', t:'list', list:'owner' },
     { k:'kex_notice_date', l:'วันที่ KEX แจ้ง (Email)', t:'date' },
-    { k:'tracking_no', l:'เลข Tracking', t:'text' },
+    { k:'tracking_no', l:'เลข Tracking KEX', t:'text', hint:'ห้ามซ้ำกับเคสอื่น' },
+    { k:'nim_tracking_no', l:'เลข Tracking NIM', t:'text', hint:'ซ้ำกับเคสอื่นได้' },
     { k:'incident_type', l:'ประเภทเหตุ', t:'select', list:'incident_type' },
     { k:'damage_type', l:'ลักษณะความเสียหาย', t:'list', list:'damage_type', hint:'บังคับเมื่อเป็น “เสียหาย”' },
     { k:'cause', l:'สาเหตุ (ตาม KEX)', t:'list', list:'cause' },
@@ -379,7 +380,7 @@ function viewDashboard(){
     '<section class="card pad" style="display:flex;flex-direction:column;gap:16px"><h2>Top DC ต้นทาง</h2>'+hbars(topN(cur,'origin_dc',5))+'</section>'+
   '</div>'+
   '<section class="card"><div class="pad" style="padding-bottom:12px"><h2>เคสที่ค้างกับ KEX · ใช้ทวงในที่ประชุม</h2><div class="desc" style="font-size:13px">สถานะ S3 เคลม KEX · รอผล และ S4 รอรับเงิน (ทุกเดือน) · เรียงตามวันตั้งแต่ยื่นเคลม</div></div>'+
-  (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking</th><th>สถานะ</th><th>วันที่ยื่นเคลม</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่ยื่น</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
+  (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>สถานะ</th><th>วันที่ยื่นเคลม</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่ยื่น</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
     pend.map(function(p){ var c=p.c; return '<tr><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+'</td><td>'+chip(c.status)+'</td><td>'+fmtD(c.claim_submit_date)+'</td><td class="r">'+money(code(c.status)==='S4'?c.approved_amount:c.claim_amount)+'</td><td class="r"><b>'+(p.days==null?'–':p.days+' วัน')+'</b></td><td class="r">'+c.followup_count+' ครั้ง</td></tr>'; }).join('')+
     '</tbody></table></div>' : '<div class="empty">ไม่มีเคสค้างกับ KEX</div>')+
   '</section>';
@@ -402,7 +403,7 @@ function viewList(){
     if(L.dc && c.origin_dc!==L.dc) return false;
     if(L.owner && c.owner!==L.owner) return false;
     if(L.lateOnly && !isLate(c)) return false;
-    if(q && [c.case_id,c.tracking_no,c.sender].join(' ').toLowerCase().indexOf(q)<0) return false;
+    if(q && [c.case_id,c.tracking_no,c.nim_tracking_no,c.sender].join(' ').toLowerCase().indexOf(q)<0) return false;
     return true;
   }).sort(function(a,b){
     var la=isLate(a)?1:0, lb=isLate(b)?1:0; if(la!==lb) return lb-la;
@@ -413,7 +414,7 @@ function viewList(){
   var shown=rows.slice(0,300);
   return ''+
   '<div class="head"><div class="title"><h1>รายการเคส</h1><div class="desc">เคสที่ยังไม่ปิด '+open.length+' เคส · เกิน SLA '+late.length+' เคส</div></div>'+
-  '<label class="f">ค้นหา<input type="search" id="l-q" value="'+esc(L.q)+'" placeholder="เลข Tracking / เลขเคส / ผู้ส่ง" style="width:300px;max-width:100%"></label>'+
+  '<label class="f">ค้นหา<input type="search" id="l-q" value="'+esc(L.q)+'" placeholder="Tracking KEX / NIM / เลขเคส / ผู้ส่ง" style="width:300px;max-width:100%"></label>'+
   '<button type="button" class="btn primary" id="l-new" style="align-self:flex-end">+ เปิดเคสใหม่</button></div>'+
   '<div class="counts">'+counts.map(function(c){ var tone=statusTone(c.label); return '<button type="button" class="count" data-st="'+esc(c.label)+'" aria-pressed="'+(L.status===c.label)+'"><span class="c" style="color:'+(/7C2D12/.test(tone)?'#7C2D12':/374151/.test(tone)?'#374151':'#163a69')+'">'+c.code+'</span><span class="n">'+esc(c.name)+'</span><span class="v">'+c.n+'</span></button>'; }).join('')+
   '<button type="button" class="count sla" id="l-late" aria-pressed="'+L.lateOnly+'"><span class="c">SLA</span><span class="n">เกิน SLA</span><span class="v">'+late.length+'</span></button></div>'+
@@ -425,7 +426,7 @@ function viewList(){
   '<label class="check"><input type="checkbox" id="l-lateonly"'+(L.lateOnly?' checked':'')+'>เฉพาะเกิน SLA</label>'+
   '</div>'+
   '<div class="card tbl-wrap">'+(shown.length?'<table style="min-width:1040px"><thead><tr><th>เลขเคส</th><th>Tracking</th><th>ผู้ส่ง</th><th>ประเภท</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th class="r">วันค้าง</th><th>SLA</th><th class="r">ยอดเรียกร้อง</th></tr></thead><tbody>'+
-  shown.map(function(c){ var late=isLate(c); return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+'</td><td>'+esc(c.sender)+'</td><td>'+esc(c.incident_type)+'</td><td>'+chip(c.status)+'</td><td>'+esc(c.owner)+'</td><td class="r"><b>'+(num(c.days_in_status)==null?'–':c.days_in_status+' วัน')+'</b></td><td>'+(late?'<span class="late-flag"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="6"/><path d="M7 3.5V7.5M7 9.8v.2" stroke-linecap="round"/></svg>เกิน SLA</span>':(closed(c.status)?'<span class="desc" style="font-size:13px">ปิดแล้ว</span>':'<span class="desc" style="font-size:13px">ปกติ</span>'))+'</td><td class="r">'+money(c.claim_amount)+'</td></tr>'; }).join('')+
+  shown.map(function(c){ var late=isLate(c); return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+(c.nim_tracking_no?'<br><span style="color:var(--muted)">NIM '+esc(c.nim_tracking_no)+'</span>':'')+'</td><td>'+esc(c.sender)+'</td><td>'+esc(c.incident_type)+'</td><td>'+chip(c.status)+'</td><td>'+esc(c.owner)+'</td><td class="r"><b>'+(num(c.days_in_status)==null?'–':c.days_in_status+' วัน')+'</b></td><td>'+(late?'<span class="late-flag"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="6"/><path d="M7 3.5V7.5M7 9.8v.2" stroke-linecap="round"/></svg>เกิน SLA</span>':(closed(c.status)?'<span class="desc" style="font-size:13px">ปิดแล้ว</span>':'<span class="desc" style="font-size:13px">ปกติ</span>'))+'</td><td class="r">'+money(c.claim_amount)+'</td></tr>'; }).join('')+
   '</tbody></table>':'<div class="empty">ไม่พบเคสตามเงื่อนไข</div>')+'</div>'+
   '<div class="desc" style="font-size:13px">แสดง '+shown.length+' จาก '+rows.length+' เคส · เรียงตาม: เกิน SLA → วันค้างมากสุด</div>';
 }
@@ -521,7 +522,7 @@ function viewForm(){
   var head = isNew
     ? '<div class="head"><div class="title"><h1>เปิดเคสใหม่</h1><div class="desc">กรอกข้อมูลจาก Email ของ KEX · ระบบออกเลขเคสให้อัตโนมัติ</div></div></div>'
     : '<div class="head"><div class="title"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h1 class="mono" style="font-size:28px">'+esc(c.case_id)+'</h1>'+chip(c.status)+'</div>'+
-      '<div class="desc">Tracking '+esc(c.tracking_no)+' · '+esc(c.sender)+' · '+esc(c.incident_type)+' · '+esc(c.service_type)+' · ผู้รับผิดชอบ '+esc(c.owner||'–')+'</div></div>'+
+      '<div class="desc">Tracking KEX '+esc(c.tracking_no)+(c.nim_tracking_no?' · NIM '+esc(c.nim_tracking_no):'')+' · '+esc(c.sender)+' · '+esc(c.incident_type)+' · '+esc(c.service_type)+' · ผู้รับผิดชอบ '+esc(c.owner||'–')+'</div></div>'+
       '<div style="display:flex;gap:24px;font-size:13px;color:var(--muted)"><div style="display:flex;flex-direction:column">อายุเคส<b style="font-size:20px;color:var(--ink)">'+(num(c.case_age)==null?'–':c.case_age+' วัน')+'</b></div>'+
       '<div style="display:flex;flex-direction:column">วันค้างในสถานะ<b style="font-size:20px;color:'+(isLate(c)?'var(--red)':'var(--ink)')+'">'+(num(c.days_in_status)==null?'–':c.days_in_status+' วัน')+'</b></div>'+
       '<div style="display:flex;flex-direction:column">SLA<b style="font-size:20px;color:var(--ink)">1 วัน</b></div></div></div>';
