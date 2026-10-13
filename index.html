@@ -209,6 +209,7 @@ function labelOf(k){ var f = ALL_FIELDS.filter(function(x){return x.k===k;})[0];
 /* ============================================================ utils */
 function esc(v){ return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function num(v){ return (v===''||v==null||isNaN(Number(v))) ? null : Number(v); }
+function days(v){ var n=num(v); return n==null ? null : Math.round(n); }
 function money(v){ var n=num(v); return n==null ? '–' : n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function int(v){ var n=num(v); return n==null ? '–' : Math.round(n).toLocaleString('en-US'); }
 function pct(a,b){ return b ? (a/b*100).toFixed(1)+'%' : '–'; }
@@ -330,7 +331,7 @@ function viewDashboard(){
   var paidRows=cur.filter(function(c){return num(c.kex_paid_amount)!=null;});
   var paid=paidRows.reduce(function(s,c){return s+num(c.kex_paid_amount);},0);
   var paidClaim=paidRows.reduce(function(s,c){return s+(num(c.claim_amount)||0);},0);
-  var payDays=cur.map(function(c){return num(c.days_kex_pay);}).filter(function(x){return x!=null;});
+  var payDays=cur.map(function(c){return days(c.days_kex_pay);}).filter(function(x){return x!=null;});
   var avgPay=payDays.length ? (payDays.reduce(function(a,b){return a+b;},0)/payDays.length).toFixed(1) : '–';
   var rate = (!D.service && vol) ? (cur.length/vol*1000).toFixed(2) : '–';
   var rateSub = D.service ? 'ดูได้เมื่อเลือกทุกบริการ' : (vol ? 'จากยอดส่ง '+int(vol)+' ชิ้น' : 'ยังไม่กรอกยอดส่ง (ชีตสรุปรายเดือน)');
@@ -407,7 +408,7 @@ function viewList(){
     return true;
   }).sort(function(a,b){
     var la=isLate(a)?1:0, lb=isLate(b)?1:0; if(la!==lb) return lb-la;
-    var da=num(a.days_in_status)||0, db=num(b.days_in_status)||0; if(da!==db) return db-da;
+    var da=days(a.days_in_status)||0, db=days(b.days_in_status)||0; if(da!==db) return db-da;
     return String(b.case_id).localeCompare(String(a.case_id));
   });
   var stOpts=[{v:'open',l:'ยังไม่ปิดทั้งหมด'},{v:'all',l:'ทั้งหมด (รวมปิดแล้ว)'}].concat(S.boot.statuses.map(function(s){return {v:s.label,l:s.label};}));
@@ -426,7 +427,7 @@ function viewList(){
   '<label class="check"><input type="checkbox" id="l-lateonly"'+(L.lateOnly?' checked':'')+'>เฉพาะเกิน SLA</label>'+
   '</div>'+
   '<div class="card tbl-wrap">'+(shown.length?'<table style="min-width:1040px"><thead><tr><th>เลขเคส</th><th>Tracking</th><th>ผู้ส่ง</th><th>ประเภท</th><th>สถานะ</th><th>ผู้รับผิดชอบ</th><th class="r">วันค้าง</th><th>SLA</th><th class="r">ยอดเรียกร้อง</th></tr></thead><tbody>'+
-  shown.map(function(c){ var late=isLate(c); return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+(c.nim_tracking_no?'<br><span style="color:var(--muted)">NIM '+esc(c.nim_tracking_no)+'</span>':'')+'</td><td>'+esc(c.sender)+'</td><td>'+esc(c.incident_type)+'</td><td>'+chip(c.status)+'</td><td>'+esc(c.owner)+'</td><td class="r"><b>'+(num(c.days_in_status)==null?'–':c.days_in_status+' วัน')+'</b></td><td>'+(late?'<span class="late-flag"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="6"/><path d="M7 3.5V7.5M7 9.8v.2" stroke-linecap="round"/></svg>เกิน SLA</span>':(closed(c.status)?'<span class="desc" style="font-size:13px">ปิดแล้ว</span>':'<span class="desc" style="font-size:13px">ปกติ</span>'))+'</td><td class="r">'+money(c.claim_amount)+'</td></tr>'; }).join('')+
+  shown.map(function(c){ var late=isLate(c); return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+(c.nim_tracking_no?'<br><span style="color:var(--muted)">NIM '+esc(c.nim_tracking_no)+'</span>':'')+'</td><td>'+esc(c.sender)+'</td><td>'+esc(c.incident_type)+'</td><td>'+chip(c.status)+'</td><td>'+esc(c.owner)+'</td><td class="r"><b>'+(days(c.days_in_status)==null?'–':days(c.days_in_status)+' วัน')+'</b></td><td>'+(late?'<span class="late-flag"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="6"/><path d="M7 3.5V7.5M7 9.8v.2" stroke-linecap="round"/></svg>เกิน SLA</span>':(closed(c.status)?'<span class="desc" style="font-size:13px">ปิดแล้ว</span>':'<span class="desc" style="font-size:13px">ปกติ</span>'))+'</td><td class="r">'+money(c.claim_amount)+'</td></tr>'; }).join('')+
   '</tbody></table>':'<div class="empty">ไม่พบเคสตามเงื่อนไข</div>')+'</div>'+
   '<div class="desc" style="font-size:13px">แสดง '+shown.length+' จาก '+rows.length+' เคส · เรียงตาม: เกิน SLA → วันค้างมากสุด</div>';
 }
@@ -523,8 +524,8 @@ function viewForm(){
     ? '<div class="head"><div class="title"><h1>เปิดเคสใหม่</h1><div class="desc">กรอกข้อมูลจาก Email ของ KEX · ระบบออกเลขเคสให้อัตโนมัติ</div></div></div>'
     : '<div class="head"><div class="title"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h1 class="mono" style="font-size:28px">'+esc(c.case_id)+'</h1>'+chip(c.status)+'</div>'+
       '<div class="desc">Tracking KEX '+esc(c.tracking_no)+(c.nim_tracking_no?' · NIM '+esc(c.nim_tracking_no):'')+' · '+esc(c.sender)+' · '+esc(c.incident_type)+' · '+esc(c.service_type)+' · ผู้รับผิดชอบ '+esc(c.owner||'–')+'</div></div>'+
-      '<div style="display:flex;gap:24px;font-size:13px;color:var(--muted)"><div style="display:flex;flex-direction:column">อายุเคส<b style="font-size:20px;color:var(--ink)">'+(num(c.case_age)==null?'–':c.case_age+' วัน')+'</b></div>'+
-      '<div style="display:flex;flex-direction:column">วันค้างในสถานะ<b style="font-size:20px;color:'+(isLate(c)?'var(--red)':'var(--ink)')+'">'+(num(c.days_in_status)==null?'–':c.days_in_status+' วัน')+'</b></div>'+
+      '<div style="display:flex;gap:24px;font-size:13px;color:var(--muted)"><div style="display:flex;flex-direction:column">อายุเคส<b style="font-size:20px;color:var(--ink)">'+(days(c.case_age)==null?'–':days(c.case_age)+' วัน')+'</b></div>'+
+      '<div style="display:flex;flex-direction:column">วันค้างในสถานะ<b style="font-size:20px;color:'+(isLate(c)?'var(--red)':'var(--ink)')+'">'+(days(c.days_in_status)==null?'–':days(c.days_in_status)+' วัน')+'</b></div>'+
       '<div style="display:flex;flex-direction:column">SLA<b style="font-size:20px;color:var(--ink)">1 วัน</b></div></div></div>';
 
   var side='';
