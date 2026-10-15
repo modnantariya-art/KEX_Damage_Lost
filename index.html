@@ -184,8 +184,8 @@ var FD = {
   product_desc:{ l:'รายละเอียดสินค้า', t:'text' },
   goods_value:{ l:'มูลค่าสินค้า (บาท)', t:'money' },
   incident_detail:{ l:'รายละเอียดเหตุการณ์', t:'textarea', wide:true },
-  cc_action:{ l:'ความประสงค์ผู้รับ (นำส่ง / ส่งคืน / ทำลาย)', t:'select', list:'cc_action' },
-  claim_intent:{ l:'ความประสงค์เคลม', t:'select', list:'claim_intent' },
+  cc_action:{ l:'ความประสงค์ผู้รับ (จาก CC)', t:'select', list:'cc_action', hint:'นำส่ง / ส่งคืน / ทำลาย' },
+  claim_intent:{ l:'ความประสงค์เคลม (จาก CC)', t:'select', list:'claim_intent', hint:'ไม่ประสงค์ / ไม่เข้าเงื่อนไข = ปิดเคสทันที · เว้นว่างได้ถ้า CC ยังไม่มีผล' },
   cc_date:{ l:'วันที่ได้ผลจาก CC', t:'date' },
   goods_result:{ l:'ผลการจัดการสินค้า', t:'text' },
   goods_done_date:{ l:'วันที่จัดการสินค้าเสร็จ', t:'date', hint:'เว้นว่าง = วันที่กดยืนยัน' },
@@ -207,7 +207,7 @@ var FD = {
   cust_paid_amount:{ l:'ยอดโอนให้ลูกค้า (บาท)', t:'money', hint:'ตั้งต้นจากยอดเรียกร้อง' }
 };
 var REQ = ['source','owner','kex_notice_date','cust_claim_date','nim_claim_no','tracking_no','nim_tracking_no','incident_type','origin_dc','sender',
-  'service_type','product_desc','goods_value','cc_action','claim_intent','goods_result','claim_submit_date','claim_amount','kex_decision',
+  'service_type','product_desc','goods_value','claim_submit_date','claim_amount','kex_decision',
   'kex_decision_date','kex_paid_date','kex_paid_amount','cust_paid_date','cust_paid_amount','appeal_date','appeal_reason'];
 function labelOf(k){ return FD[k] ? FD[k].l : k; }
 
@@ -232,7 +232,7 @@ function stLabel(cd){ var s=stOf(cd); return s ? s.label : cd; }
 function caseMonth(c){ return ym(c.kex_notice_date || c.cust_claim_date || c.opened_at); }
 function tone(cd){
   if(cd.charAt(0)==='X') return 'background:#18212B;color:#fff';
-  if(['KD','ND','KX','NX','A3'].indexOf(cd)>=0) return 'background:#EBEDF0;color:#374151';
+  if(['KD','ND','KX','NX'].indexOf(cd)>=0) return 'background:#EBEDF0;color:#374151';
   if(['C2','K1','K2','K3','N2'].indexOf(cd)>=0) return 'background:#FBDDB8;color:#7C2D12';
   return 'background:#D9E4F5;color:#163a69';
 }
@@ -253,8 +253,8 @@ function slaItems(c){
     var st=stOf(cd), sla=(st && st.sla!=null && st.sla!=='') ? Number(st.sla) : null, d=daysSince(from);
     out.push({ code:cd, days:d, sla:sla, late: sla!=null && d!=null && d>sla });
   };
-  if(k==='A1'||k==='A3'||k==='C1') add(k, c.status_changed_at);
-  else if(k==='A2') add(k, c.goods_received_date || c.status_changed_at);
+  if(k==='C1') add(k, c.status_changed_at);
+  else if(k==='A1') add(k, c.goods_received_date || c.status_changed_at);
   else if(k==='C2'){
     var ks=code(c.kex_track), ns=code(c.nim_track);
     if(ks==='K1') add('K1', c.cust_claim_date || c.kex_track_at);
@@ -438,7 +438,7 @@ function viewDashboard(){
 }
 
 /* ============================================================ list */
-var COUNT_CODES = ['A1','A2','A3','C1','K1','K2','K3','N2'];
+var COUNT_CODES = ['A1','C1','K1','K2','K3','N2'];
 function matchSt(c, cd){
   var f=cd.charAt(0);
   if(f==='K') return code(c.kex_track)===cd;
@@ -536,21 +536,18 @@ function dueAmount(c){ return num(c.claim_amount)!=null ? num(c.claim_amount) : 
 /* ขั้นตอนของเคส (บนสุดของหน้า) */
 function stepper(c){
   var k=code(c.status), src2=c.source===SRC[1];
-  var viaCC = !src2 && (k==='A3' || (k==='X4' && !c.not_eligible_reason && (c.goods_result || (c.claim_intent && c.claim_intent!=='ประสงค์เคลม'))));
-  var steps;
-  if(viaCC) steps=[['A1','CC ประสานลูกค้า'],['A3','จัดการสินค้า'],['X4','ปิด · ไม่เคลม']];
+  var steps = src2 ? [['N1','ลูกค้ายื่นเคลมผ่านเว็บ']] : [['O','KEX แจ้ง · เปิดเคส'],['A1','รอลูกค้ายื่นเคลม']];
+  var noClaim = !src2 && k==='X4' && !c.not_eligible_reason && !c.cust_claim_date;
+  if(noClaim) steps.push(['X4','ปิด · ไม่เคลม']);
+  else if(k==='X5') steps.push(['X5','ปิด · ลูกค้าไม่ยื่นเคลม']);
   else {
-    steps = src2 ? [['N1','ลูกค้ายื่นเคลมผ่านเว็บ']] : [['A1','CC ประสานลูกค้า'],['A2','รอลูกค้ายื่นเคลม']];
-    if(k==='X5') steps.push(['X5','ปิด · ลูกค้าไม่ยื่นเคลม']);
-    else {
-      steps.push(['C1','พิจารณาเงื่อนไข']);
-      if(k==='X4') steps.push(['X4','ปิด · ไม่เข้าเงื่อนไข']);
-      else { steps.push(['C2','เคลม KEX + โอนลูกค้า']); steps.push([closed(c.status)?k:'X', closed(c.status)?String(c.status).replace(/^\S+\s/,''):'ปิดเคส']); }
-    }
+    steps.push(['C1','พิจารณาเงื่อนไข']);
+    if(k==='X4') steps.push(['X4','ปิด · ไม่เข้าเงื่อนไข']);
+    else { steps.push(['C2','เคลม KEX + โอนลูกค้า']); steps.push([closed(c.status)?k:'X', closed(c.status)?String(c.status).replace(/^\S+\s/,''):'ปิดเคส']); }
   }
   var curIdx=steps.map(function(s){return s[0];}).indexOf(k), allDone=closed(c.status);
   return '<ol class="steps card">'+steps.map(function(s,idx){
-    var done = allDone || idx<curIdx || s[0]==='N1', isCur = !allDone && idx===curIdx;
+    var done = allDone || idx<curIdx || s[0]==='N1' || s[0]==='O', isCur = !allDone && idx===curIdx;
     return '<li class="'+(isCur?'cur':done?'done':'')+'"><span class="dot">'+(done?'✓':isCur?'•':'')+'</span>'+esc(s[1])+'</li>';
   }).join('')+'</ol>';
 }
@@ -560,24 +557,17 @@ function stepPanel(c, used){
   var k=code(c.status);
   var tag='<span class="tag">ขั้นปัจจุบัน · '+esc(c.status)+'</span>';
   if(k==='A1'){
-    return tag+'<h2>ผล Call Center</h2><div class="desc">KEX แจ้งทาง Email → CC แจ้งลูกค้า สอบถามความประสงค์ผู้รับ และความประสงค์เคลม</div>'+
-      fgrid(['cc_action','claim_intent','cc_date'],c,used)+
-      acts(abtn('cc_done','ยืนยันผล CC →','primary')+abtn('save','บันทึก'))+
-      '<div class="desc" style="font-size:13px">ประสงค์เคลม → A2 รอลูกค้ายื่นเคลมผ่านเว็บ · ไม่ประสงค์เคลม / ไม่เข้าเงื่อนไข → A3 รอผลจัดการสินค้า</div>';
-  }
-  if(k==='A2'){
     var gr=c.goods_received_date, d=gr?daysSince(gr):null, w;
     if(gr && d>3) w=note(WARN_ICON+' ลูกค้ารับสินค้าเมื่อ '+fmtD(gr)+' ผ่านมา '+d+' วัน <b>เกินกำหนด 3 วันแล้ว</b> — ถ้าลูกค้าไม่ยื่น ปิดเป็น X5 ได้','bad');
     else if(gr) w=note('ลูกค้ารับสินค้าเมื่อ '+fmtD(gr)+' · ยื่นเคลมได้อีก '+Math.max(0,3-d)+' วัน','good');
     else w=note('ใส่วันที่ลูกค้ารับสินค้า เพื่อนับกำหนดยื่นเคลม 3 วัน');
     return tag+'<h2>รอลูกค้ายื่นเคลมผ่านเว็บ NIM</h2>'+w+
+      '<div class="subhead" style="border:none;padding:0;color:var(--primary-ink)">ลูกค้ายื่นเคลมแล้ว</div>'+
       fgrid(['cust_claim_date','nim_claim_no','goods_received_date'],c,used)+
-      acts(abtn('customer_filed','ลูกค้ายื่นเคลมแล้ว → C1 พิจารณาเงื่อนไข','primary')+abtn('close_nofile','ปิด · ลูกค้าไม่ยื่นเคลม (X5)','dark')+abtn('save','บันทึก'));
-  }
-  if(k==='A3'){
-    return tag+'<h2>ไม่เคลม · ผลจัดการสินค้า</h2>'+kv([['ความประสงค์ผู้รับ',esc(c.cc_action)],['ความประสงค์เคลม',esc(c.claim_intent)]])+
-      fgrid(['goods_result','goods_done_date'],c,used)+
-      acts(abtn('goods_done','ยืนยันจัดการสินค้าเสร็จ → ปิด X4','primary')+abtn('save','บันทึก'));
+      acts(abtn('customer_filed','ลูกค้ายื่นเคลมแล้ว → C1 พิจารณาเงื่อนไข','primary'))+
+      '<div class="subhead">ลูกค้าไม่เคลม / ไม่ยื่น</div>'+
+      fgrid(['cc_action','claim_intent'],c,used,{ claim_intent:{ hint:'' } })+
+      acts(abtn('close_noclaim','ปิด · ไม่เคลม (X4)','dark')+abtn('close_nofile','ปิด · ลูกค้าไม่ยื่นเคลม (X5)','dark')+abtn('save','บันทึก'));
   }
   if(k==='C1'){
     var gap=filingGap(c);
@@ -667,7 +657,7 @@ function gapNote(c){
 function closedPanel(c){
   var k=code(c.status), rows=[['ปิดเมื่อ',fmtD(c.closed_at)]];
   if(k==='X1'||k==='X2'||k==='X3') rows=rows.concat([['ยอดเรียกร้อง',money(c.claim_amount)],['รับจาก KEX',money(c.kex_paid_amount)],['โอนลูกค้า',money(c.cust_paid_amount)]]);
-  if(k==='X4') rows.push(['เหตุผล',esc(c.not_eligible_reason || c.goods_result || c.claim_intent)]);
+  if(k==='X4') rows.push(['เหตุผล',esc(c.not_eligible_reason || c.claim_intent)],['ความประสงค์ผู้รับ',esc(c.cc_action)]);
   return '<span class="tag">ปิดเคสแล้ว</span><h2>'+esc(c.status)+'</h2>'+kv(rows)+gapNote(c)+acts(abtn('save','บันทึกการแก้ไข'));
 }
 
@@ -676,12 +666,8 @@ function infoSections(c, used){
   var k=code(c.status), src2=c.source===SRC[1];
   var secs=[];
   secs.push(['ข้อมูลเคส · เหตุการณ์', ['owner'].concat(src2?[]:['kex_notice_date'], ['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','service_type','product_desc','goods_value','incident_detail'])]);
-  if(!src2 && k!=='A1'){
-    var cc=['cc_action','claim_intent','cc_date'];
-    if(c.goods_result || c.goods_done_date || (c.claim_intent && c.claim_intent!=='ประสงค์เคลม')) cc=cc.concat(['goods_result','goods_done_date']);
-    secs.push(['ผล Call Center', cc]);
-  }
-  if(src2 || c.cust_claim_date || c.nim_claim_no || ['A1','A2','A3'].indexOf(k)<0 && !(k==='X4' && !c.cust_claim_date)){
+  if(!src2) secs.push(['ผล Call Center', ['cc_action','claim_intent','cc_date']]);
+  if(src2 || c.cust_claim_date || c.nim_claim_no || (k!=='A1' && k!=='X4')){
     var cu=['cust_claim_date','nim_claim_no','goods_received_date'];
     if(c.not_eligible_reason) cu.push('not_eligible_reason');
     secs.push(['ลูกค้ายื่นเคลม (เว็บ NIM)', cu]);
@@ -706,11 +692,13 @@ function viewForm(){
 
   if(isNew){
     var src=c.source, keys=['source','owner'];
-    if(src===SRC[0]) keys.push('kex_notice_date');
+    if(src===SRC[0]) keys=keys.concat(['kex_notice_date','cc_action','claim_intent']);
     if(src===SRC[1]) keys=keys.concat(['cust_claim_date','nim_claim_no','goods_received_date']);
     keys=keys.concat(['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','service_type','product_desc','goods_value','incident_detail']);
     var route = src===SRC[1] ? note('ลูกค้ายื่นเคลมเอง (KEX ไม่ได้แจ้ง) → เปิดเคสแล้วไป <b>C1 รอพิจารณาเงื่อนไขเคลม</b> · ระบบนับเป็นเคสที่ KEX ไม่ได้แจ้ง','good')
-      : src===SRC[0] ? note('KEX แจ้งทาง Email → เปิดเคสแล้วไป <b>A1 รอ CC ประสานลูกค้า</b>','good')
+      : src===SRC[0] ? (['ไม่ประสงค์เคลม','ไม่เข้าเงื่อนไข'].indexOf(c.claim_intent)>=0
+          ? note('KEX แจ้ง · ลูกค้า<b>'+esc(c.claim_intent)+'</b> → บันทึกแล้ว<b>ปิดเคส X4 ไม่เคลม</b>ทันที','good')
+          : note('KEX แจ้งทาง Email → เปิดเคสแล้วไป <b>A1 รอลูกค้ายื่นเคลมผ่านเว็บ</b> · ใส่ผลจาก CC ได้เลยถ้ามีแล้ว','good'))
       : note('เลือกช่องทางรับรู้เคสก่อน: KEX แจ้งทาง Email หรือ ลูกค้ายื่นเคลมผ่านเว็บ NIM เอง');
     var gw = (src===SRC[1] && lateFiling(c)) ? note(WARN_ICON+' ลูกค้ายื่นเคลมหลังรับสินค้า '+filingGap(c)+' วัน (เกินกำหนด 3 วัน)','bad') : '';
     return back+'<div class="head"><div class="title"><h1>เปิดเคสใหม่</h1><div class="desc">ระบบออกเลขเคสให้อัตโนมัติ · ช่องที่มี * ต้องกรอก</div></div></div>'+
@@ -748,6 +736,7 @@ function collectForm(){
 }
 var CONFIRM = {
   close_nofile:'ปิดเคสเป็น “ลูกค้าไม่ยื่นเคลม” (X5)?',
+  close_noclaim:'ปิดเคสเป็น “ไม่เคลม” (X4)?',
   not_eligible:'ปิดเคสเป็น “ไม่เข้าเงื่อนไข” (X4)?',
   kex_close_reject:'ปิดฝั่ง KEX แบบ KEX ปฏิเสธ (ไม่อุทธรณ์ต่อ)?',
   nim_nopay:'ยืนยันว่า NIM ไม่จ่ายเงินลูกค้า?'
