@@ -155,7 +155,7 @@ details.sec:not([open]){padding-top:14px;padding-bottom:14px}
 var API_URL = 'https://script.google.com/macros/s/AKfycbysidAobNhvSIdrAdhOPGV1YMCrupAxJOzglVJyLYLZJGOv20Q4fdYngtSxB9rqBmWiRA/exec';
 var S = {
   boot: null, cases: [], page: 'dashboard',
-  list: { st: 'open', q: '', type: '', src: '', owner: '', lateOnly: false },
+  list: { st: 'open', close: '', q: '', type: '', src: '', owner: '', lateOnly: false },
   dash: { month: null, service: '', metric: 'rate' },
   rec: { month: 'all', tab: 'receive' },
   form: { caseId: null, detail: null, missing: [], message: '', msgType: '' },
@@ -493,6 +493,7 @@ function viewList(){
   var rows=cs.filter(function(c){
     if(L.st==='open' && closed(c.status)) return false;
     if(L.st!=='open' && L.st!=='all' && !matchSt(c,L.st)) return false;
+    if(L.st==='closed' && L.close && code(c.status)!==L.close) return false;
     if(L.type && c.incident_type!==L.type) return false;
     if(L.src && c.source!==L.src) return false;
     if(L.owner && c.owner!==L.owner) return false;
@@ -504,11 +505,9 @@ function viewList(){
     var da=maxDays(a)||0, db=maxDays(b)||0; if(da!==db) return db-da;
     return String(b.case_id).localeCompare(String(a.case_id));
   });
-  var stOpts=[{v:'open',l:'ยังไม่ปิดทั้งหมด'},{v:'all',l:'ทั้งหมด (รวมปิดแล้ว)'}]
-    .concat(['A1','C1','C2','closed'].map(function(k){ return {v:k,l:'ขั้นตอนเคส · '+stName(k)}; }))
-    .concat(Object.keys(CLOSE).map(function(k){ return {v:k,l:'ขั้นตอนเคส · ปิดเคส · '+CLOSE[k]}; }))
-    .concat(['K1','K2','K2A','K3','KD','KX'].map(function(k){ return {v:k,l:'เคลมกับ KEX · '+stName(k)}; }))
-    .concat(['N2','ND','NX'].map(function(k){ return {v:k,l:'โอนเงินลูกค้า · '+stName(k)}; }));
+  /* ตัวกรองสถานะ: 4 ตัวเลือก · งานค้างแต่ละแบบกดจากช่อง "งานที่ต้องทำ" */
+  var stOpts=[{v:'open',l:'ยังไม่ปิด'},{v:'C2',l:'กำลังเคลม'},{v:'closed',l:'ปิดแล้ว'},{v:'all',l:'ทั้งหมด'}];
+  if(['open','C2','closed','all'].indexOf(L.st)<0) stOpts.push({v:L.st,l:'งานที่ต้องทำ · '+stName(L.st)});
   var shown=rows.slice(0,300);
   var tc=function(k){ return /7C2D12/.test(tone(k))?'#7C2D12':/374151/.test(tone(k))?'#374151':'#163a69'; };
   return ''+
@@ -521,6 +520,7 @@ function viewList(){
     '<button type="button" class="count sla" id="l-late" aria-pressed="'+L.lateOnly+'"><span class="n" style="color:var(--red);font-weight:600">เกิน SLA</span><span class="v">'+late.length+'</span></button></div></div>'; }).join('')+'</div>'+
   '<div class="filters">'+
   '<label class="f">สถานะ<select id="l-status">'+opts(stOpts,L.st)+'</select></label>'+
+  (L.st==='closed' ? '<label class="f">ผลการปิด<select id="l-close">'+opts(Object.keys(CLOSE).map(function(k){ return {v:k,l:CLOSE[k]}; }),L.close,'ทุกแบบ')+'</select></label>' : '')+
   '<label class="f">ช่องทาง<select id="l-src">'+opts(SRC.map(function(s){return {v:s,l:s};}),L.src,'ทั้งหมด')+'</select></label>'+
   '<label class="f">ประเภทเหตุ<select id="l-type">'+opts(S.boot.lists.incident_type||[],L.type,'ทั้งหมด')+'</select></label>'+
   '<label class="f">ผู้รับผิดชอบ<select id="l-owner">'+opts(uniq(cs.map(function(c){return c.owner;})),L.owner,'ทั้งหมด')+'</select></label>'+
@@ -871,7 +871,8 @@ function bind(){
   }
   if(S.page==='list' && $('l-q')){
     $('l-q').oninput=function(e){ S.list.q=e.target.value; var pos=e.target.selectionStart; render(); var q=$('l-q'); q.focus(); q.setSelectionRange(pos,pos); };
-    $('l-status').onchange=function(e){ S.list.st=e.target.value; render(); };
+    $('l-status').onchange=function(e){ S.list.st=e.target.value; S.list.close=''; render(); };
+    if($('l-close')) $('l-close').onchange=function(e){ S.list.close=e.target.value; render(); };
     $('l-src').onchange=function(e){ S.list.src=e.target.value; render(); };
     $('l-type').onchange=function(e){ S.list.type=e.target.value; render(); };
     $('l-owner').onchange=function(e){ S.list.owner=e.target.value; render(); };
