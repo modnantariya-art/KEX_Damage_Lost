@@ -71,7 +71,7 @@ tr.late td{background:#FFF7F7}
 .count:focus-visible{outline:2px solid var(--primary)}
 .count[aria-pressed="true"]{border:2px solid var(--primary)}
 .count .c{font-size:12px;font-weight:600} .count .n{font-size:13px;color:var(--ink2)} .count .v{font-size:22px;font-weight:700}
-.cgroups{display:flex;flex-wrap:wrap;gap:16px 24px}.cg{display:flex;flex-direction:column;gap:6px}.cg .gl{font-size:13px;font-weight:600;color:var(--muted)}.cgrow{display:flex;flex-wrap:wrap;gap:10px}.cgrow .count{width:136px}
+.cgroups{display:flex;flex-wrap:wrap;gap:16px 24px}.cg{display:flex;flex-direction:column;gap:6px}.cg .gl{font-size:13px;font-weight:600;color:var(--muted)}.cgrow{display:flex;flex-wrap:wrap;gap:10px}.cg{flex:1 1 100%}.cgrow .count{width:128px}
 .count.sla{background:var(--red-soft);border-color:#F5B5B1}.count.sla .c{color:var(--red)}
 .filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
 .check{display:flex;align-items:center;gap:8px;height:44px;font-size:14px}
@@ -452,7 +452,7 @@ function viewDashboard(){
     '<section class="card pad" style="display:flex;flex-direction:column;gap:16px"><h2>Top DC ต้นทาง</h2>'+hbars(topN(cur,'origin_dc',5))+'</section>'+
   '</div>'+
   '<section class="card"><div class="pad" style="padding-bottom:12px"><h2>เคสที่ค้างกับ KEX · ใช้ทวงในที่ประชุม</h2><div class="desc" style="font-size:13px">ฝั่ง KEX ยังไม่จบ: รอแจ้งเคลม KEX · รอผล KEX · รอเงิน KEX (ทุกเดือน) · เรียงตามวันตั้งแต่แจ้งเคลม</div></div>'+
-  (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>ฝั่ง KEX</th><th>วันที่แจ้งเคลม KEX</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่แจ้ง</th><th>SLA</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
+  (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>เคลมกับ KEX</th><th>วันที่แจ้งเคลม KEX</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่แจ้ง</th><th>SLA</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
     pend.map(function(p){ var c=p.c, late=!!lateIds[c.case_id]; return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+'</td><td>'+chip(kexCode(c))+'</td><td>'+fmtD(c.claim_submit_date)+'</td><td class="r">'+money(p.k==='K3'?c.approved_amount:(num(c.claim_amount)!=null?c.claim_amount:c.goods_value))+'</td><td class="r"><b>'+(p.days==null?'–':p.days+' วัน')+'</b></td><td>'+(late?'<span class="late-flag">'+WARN_ICON+'เกิน SLA</span>':'<span class="desc" style="font-size:13px">ปกติ</span>')+'</td><td class="r">'+(c.followup_count||0)+' ครั้ง</td></tr>'; }).join('')+
     '</tbody></table></div>' : '<div class="empty">ไม่มีเคสค้างกับ KEX</div>')+
   '</section>'+
@@ -465,9 +465,7 @@ function viewDashboard(){
 
 /* ============================================================ list */
 var COUNT_GROUPS = [
-  { name:'สถานะภาพรวม', codes:['A1','C1','C2','closed'] },
-  { name:'สถานะ KEX', codes:['K1','K2','K2A','K3'] },
-  { name:'สถานะ NIM', codes:['N2'] }
+  { name:'งานที่ต้องทำ', codes:['A1','C1','K1','K2','K2A','K3','N2'] }
 ];
 var COUNT_CODES = ['A1','C1','K1','K2','K2A','K3','N2'];
 var ST_LABEL = { C2:'กำลังเคลม', closed:'ปิดเคส' };
@@ -507,10 +505,10 @@ function viewList(){
     return String(b.case_id).localeCompare(String(a.case_id));
   });
   var stOpts=[{v:'open',l:'ยังไม่ปิดทั้งหมด'},{v:'all',l:'ทั้งหมด (รวมปิดแล้ว)'}]
-    .concat(['A1','C1','C2','closed'].map(function(k){ return {v:k,l:'ภาพรวม · '+stName(k)}; }))
-    .concat(Object.keys(CLOSE).map(function(k){ return {v:k,l:'ภาพรวม · ปิดเคส · '+CLOSE[k]}; }))
-    .concat(['K1','K2','K2A','K3','KD','KX'].map(function(k){ return {v:k,l:'KEX · '+stName(k)}; }))
-    .concat(['N2','ND','NX'].map(function(k){ return {v:k,l:'NIM · '+stName(k)}; }));
+    .concat(['A1','C1','C2','closed'].map(function(k){ return {v:k,l:'ขั้นตอนเคส · '+stName(k)}; }))
+    .concat(Object.keys(CLOSE).map(function(k){ return {v:k,l:'ขั้นตอนเคส · ปิดเคส · '+CLOSE[k]}; }))
+    .concat(['K1','K2','K2A','K3','KD','KX'].map(function(k){ return {v:k,l:'เคลมกับ KEX · '+stName(k)}; }))
+    .concat(['N2','ND','NX'].map(function(k){ return {v:k,l:'โอนเงินลูกค้า · '+stName(k)}; }));
   var shown=rows.slice(0,300);
   var tc=function(k){ return /7C2D12/.test(tone(k))?'#7C2D12':/374151/.test(tone(k))?'#374151':'#163a69'; };
   return ''+
@@ -519,8 +517,8 @@ function viewList(){
   '<button type="button" class="btn primary" id="l-new" style="align-self:flex-end">+ เปิดเคสใหม่</button></div>'+
   '<div class="cgroups">'+COUNT_GROUPS.map(function(g){
     return '<div class="cg"><div class="gl">'+esc(g.name)+'</div><div class="cgrow">'+g.codes.map(function(k){
-      return '<button type="button" class="count" data-st="'+k+'" aria-pressed="'+(L.st===k)+'"><span class="n">'+esc(stName(k))+'</span><span class="v">'+cnt(k)+'</span></button>'; }).join('')+'</div></div>'; }).join('')+
-  '<div class="cg"><div class="gl">SLA</div><div class="cgrow"><button type="button" class="count sla" id="l-late" aria-pressed="'+L.lateOnly+'"><span class="n" style="color:var(--red);font-weight:600">เกิน SLA</span><span class="v">'+late.length+'</span></button></div></div></div>'+
+      return '<button type="button" class="count" data-st="'+k+'" aria-pressed="'+(L.st===k)+'"><span class="n">'+esc(stName(k))+'</span><span class="v">'+cnt(k)+'</span></button>'; }).join('')+
+    '<button type="button" class="count sla" id="l-late" aria-pressed="'+L.lateOnly+'"><span class="n" style="color:var(--red);font-weight:600">เกิน SLA</span><span class="v">'+late.length+'</span></button></div></div>'; }).join('')+'</div>'+
   '<div class="filters">'+
   '<label class="f">สถานะ<select id="l-status">'+opts(stOpts,L.st)+'</select></label>'+
   '<label class="f">ช่องทาง<select id="l-src">'+opts(SRC.map(function(s){return {v:s,l:s};}),L.src,'ทั้งหมด')+'</select></label>'+
@@ -528,7 +526,7 @@ function viewList(){
   '<label class="f">ผู้รับผิดชอบ<select id="l-owner">'+opts(uniq(cs.map(function(c){return c.owner;})),L.owner,'ทั้งหมด')+'</select></label>'+
   '<label class="check"><input type="checkbox" id="l-lateonly"'+(L.lateOnly?' checked':'')+'>เฉพาะเกิน SLA</label>'+
   '</div>'+
-  '<div class="card tbl-wrap">'+(shown.length?'<table style="min-width:1000px"><thead><tr><th>เลขเคส</th><th>Tracking · ช่องทาง</th><th>ผู้ส่ง · ผู้รับผิดชอบ</th><th>สถานะภาพรวม</th><th>สถานะ KEX</th><th>สถานะ NIM</th><th>วันค้าง · SLA</th><th class="r">ยอดเรียกร้อง</th></tr></thead><tbody>'+
+  '<div class="card tbl-wrap">'+(shown.length?'<table style="min-width:1000px"><thead><tr><th>เลขเคส</th><th>Tracking · ช่องทาง</th><th>ผู้ส่ง · ผู้รับผิดชอบ</th><th>ขั้นตอนเคส</th><th>เคลมกับ KEX</th><th>โอนเงินลูกค้า</th><th>วันค้าง · SLA</th><th class="r">ยอดเรียกร้อง</th></tr></thead><tbody>'+
   shown.map(function(c){
     var items=slaItems(c), lt=items.filter(function(i){return i.late;}), md=maxDays(c), isC=closed(c.status);
     return '<tr'+(lt.length?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td>'+
@@ -538,7 +536,7 @@ function viewList(){
       '<td class="nw"><b>'+(isC||md==null?'–':md+' วัน')+'</b><br>'+(lt.length?'<span class="late-flag">'+WARN_ICON+'เกิน SLA</span><br><span style="font-size:12px;color:var(--red)">'+esc(lt.map(function(i){return TASK[i.code]||i.code;}).join(', '))+'</span>':(isC?'<span class="desc" style="font-size:13px">ปิดแล้ว</span>':'<span class="desc" style="font-size:13px">ปกติ</span>'))+'</td>'+
       '<td class="r nw">'+money(c.claim_amount)+'</td></tr>'; }).join('')+
   '</tbody></table>':'<div class="empty">ไม่พบเคสตามเงื่อนไข</div>')+'</div>'+
-  '<div class="desc" style="font-size:13px">แสดง '+shown.length+' จาก '+rows.length+' เคส · เรียงตาม: เกิน SLA → วันค้างมากสุด · สถานะ KEX กับสถานะ NIM เดินคู่กัน ไม่ต้องรอกัน</div>';
+  '<div class="desc" style="font-size:13px">แสดง '+shown.length+' จาก '+rows.length+' เคส · เรียงตาม: เกิน SLA → วันค้างมากสุด · เคลมกับ KEX และโอนเงินลูกค้า ทำคู่กัน ไม่ต้องรอกัน</div>';
 }
 
 /* ============================================================ form */
@@ -618,7 +616,7 @@ function stepPanel(c, used){
       acts(abtn('eligible','เข้าเงื่อนไข → เริ่มเคลม','primary')+abtn('not_eligible','ไม่เข้าเงื่อนไข → ปิดเคส','dark')+abtn('save','บันทึก'));
   }
   if(k==='C2'){
-    return tag+'<h2>กำลังเคลม · 2 ฝั่งเดินคู่กัน ไม่ต้องรอกัน</h2>'+
+    return tag+'<h2>กำลังเคลม · 2 เรื่องทำคู่กัน ไม่ต้องรอกัน</h2><div class="desc" style="font-size:13px">โอนเงินลูกค้าได้เลย ไม่ต้องรอผลหรือเงินจาก KEX</div>'+
       '<div class="lanes">'+kexLane(c,used)+nimLane(c,used)+'</div>'+gapNote(c)+
       acts(abtn('save','บันทึกข้อมูล'));
   }
@@ -662,7 +660,7 @@ function kexLane(c,used){
   } else {
     b='<div class="desc">ยังไม่เริ่มฝั่ง KEX</div>';
   }
-  return lane('ฝั่ง KEX', kexCode(c), b, ['K1','K2','K3'].indexOf(ks)>=0);
+  return lane('เคลมกับ KEX', kexCode(c), b, ['K1','K2','K3'].indexOf(ks)>=0);
 }
 function nimLane(c,used){
   var ns=code(c.nim_track), ks=code(c.kex_track), b='';
@@ -675,11 +673,11 @@ function nimLane(c,used){
     if(ks==='KX') bt+=abtn('nim_nopay','ไม่จ่ายลูกค้า','dark');
     b+=acts(bt)+(ks==='KX'?'':'<div class="desc" style="font-size:12px">“ไม่จ่ายลูกค้า” เลือกได้เมื่อ KEX ปฏิเสธและปิดฝั่ง KEX แล้ว</div>');
   } else if(ns==='ND'){
-    b=kv([['วันที่โอน',fmtD(c.cust_paid_date)],['ยอดโอนลูกค้า',money(c.cust_paid_amount)]])+'<div class="desc">ฝั่ง NIM เสร็จแล้ว</div>';
+    b=kv([['วันที่โอน',fmtD(c.cust_paid_date)],['ยอดโอนลูกค้า',money(c.cust_paid_amount)]])+'<div class="desc">โอนเงินลูกค้าเสร็จแล้ว</div>';
   } else if(ns==='NX'){
     b='<div class="desc">NIM ไม่จ่ายลูกค้า (KEX ปฏิเสธ)</div>';
-  } else b='<div class="desc">ยังไม่เริ่มฝั่ง NIM</div>';
-  return lane('ฝั่ง NIM', c.nim_track, b, ns==='N2');
+  } else b='<div class="desc">ยังไม่เริ่มโอนเงินลูกค้า</div>';
+  return lane('โอนเงินลูกค้า', c.nim_track, b, ns==='N2');
 }
 /* ส่วนต่างที่ NIM รับภาระ */
 function burdenOf(c){
@@ -720,7 +718,7 @@ function infoSections(c, used){
     secs.push(['ลูกค้ายื่นเคลม (เว็บ NIM)', cu]);
   }
   if(c.kex_track) secs.push(['เคลม KEX', ['claim_submit_date','kex_claim_no','claim_amount','kex_decision','kex_decision_date','approved_amount','reject_reason','appeal_date','appeal_reason','kex_paid_date','kex_paid_amount','kex_payment_ref']]);
-  if(c.nim_track) secs.push(['โอนเงินลูกค้า (NIM)', ['cust_paid_date','cust_paid_amount']]);
+  if(c.nim_track) secs.push(['โอนเงินลูกค้า', ['cust_paid_date','cust_paid_amount']]);
   return secs.map(function(s){
     var keys=s[1].filter(function(x){ return !used[x]; });
     if(!keys.length) return '';
@@ -849,14 +847,14 @@ function viewReconcile(){
     return '<tr><td>'+mLabel(m)+'</td><td class="r">'+a.length+'</td><td class="r">'+money(sum(a,'claim_amount'))+'</td><td class="r">'+money(sum(a,'approved_amount'))+'</td><td class="r">'+money(sum(a,'kex_paid_amount'))+'</td><td class="r">'+money(sum(a,'cust_paid_amount'))+'</td><td class="r">'+money(sum(a,burdenOf))+'</td><td class="r">'+pct(sum(pr,'kex_paid_amount'),sum(pr,'claim_amount'))+'</td></tr>'; }).join('');
   var tab=function(id,l,n){return '<button type="button" role="tab" data-tab="'+id+'" aria-selected="'+(R.tab===id)+'">'+l+(n!=null?' · '+n:'')+'</button>';};
   return ''+
-  '<div class="head"><div class="title"><h1>กระทบยอดเงิน</h1><div class="desc">ฝั่ง KEX: เรียกร้อง → อนุมัติ → รับเงิน · ฝั่ง NIM: โอนลูกค้า (= ยอดเรียกร้อง, โอนก่อนไม่รอ KEX)</div></div>'+
+  '<div class="head"><div class="title"><h1>กระทบยอดเงิน</h1><div class="desc">เคลมกับ KEX: เรียกร้อง → อนุมัติ → รับเงิน · โอนเงินลูกค้า: = ยอดเรียกร้อง, โอนได้เลยไม่ต้องรอ KEX</div></div>'+
   '<label class="f">เดือนที่รับรู้เคส<select id="r-month">'+opts([{v:'all',l:'ทุกเดือน'}].concat(months.map(function(m){return {v:m,l:mLabel(m)};})),R.month)+'</select></label>'+
   (S.boot.sheetUrl?'<a class="btn" href="'+esc(S.boot.sheetUrl)+'" target="_blank" rel="noopener" style="align-self:flex-end">เปิด Google Sheet</a>':'')+'</div>'+
   '<div class="grid-tiles">'+tiles.map(function(t){return '<div class="card tile'+(t[3]?' warn':'')+'"><span class="l">'+t[0]+'</span><span class="v">'+int(t[1])+'</span><span class="s">บาท · '+esc(t[2])+'</span></div>';}).join('')+'</div>'+
   '<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2>เส้นทางเงิน (เทียบกับยอดเรียกร้อง)</h2>'+
   funnel.map(function(f){ var p=tC?Math.round(f[1]/tC*100):0; return '<div class="hbar" style="grid-template-columns:minmax(110px,160px) minmax(0,1fr) 160px"><span>'+f[0]+'</span><div class="track" style="height:20px"><div class="fill" style="height:20px;width:'+Math.min(p,100)+'%"></div></div><span style="text-align:right"><b>'+int(f[1])+'</b> · '+p+'%</span></div>'; }).join('')+'</section>'+
   '<section class="card"><div class="tabs" role="tablist">'+tab('receive','ค้างรับจาก KEX',recv.length)+tab('pay','ค้างโอนลูกค้า',pay.length)+tab('burden','NIM รับภาระ',bur.length)+tab('all','ทุกเคสเคลม',null)+'</div>'+
-  (tabRows.length?'<div class="tbl-wrap"><table style="min-width:1100px"><thead><tr><th>เลขเคส</th><th>ผู้ส่ง</th><th>ฝั่ง KEX</th><th>ฝั่ง NIM</th><th>ผล KEX</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th>'+(pendFn?'<th class="r">'+pendLabel+'</th>':'')+'<th>ติดตามล่าสุด</th></tr></thead><tbody>'+
+  (tabRows.length?'<div class="tbl-wrap"><table style="min-width:1100px"><thead><tr><th>เลขเคส</th><th>ผู้ส่ง</th><th>เคลมกับ KEX</th><th>โอนเงินลูกค้า</th><th>ผล KEX</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th>'+(pendFn?'<th class="r">'+pendLabel+'</th>':'')+'<th>ติดตามล่าสุด</th></tr></thead><tbody>'+
   tabRows.map(function(c){return '<tr><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="who">'+esc(c.sender)+'</td><td>'+chip(kexCode(c))+'</td><td>'+chip(c.nim_track)+'</td><td>'+esc(c.kex_decision||'–')+'</td><td class="r">'+money(c.claim_amount)+'</td><td class="r">'+money(c.approved_amount)+'</td><td class="r">'+money(c.kex_paid_amount)+'</td><td class="r">'+money(c.cust_paid_amount)+'</td>'+(pendFn?'<td class="r"><b>'+money(pendFn(c))+'</b></td>':'')+'<td>'+fmtD(c.last_followup)+'</td></tr>';}).join('')+
   '</tbody></table></div>':'<div class="empty">ไม่มีรายการ</div>')+'</section>'+
   '<section class="card"><div class="pad" style="padding-bottom:0"><h2>สรุปรายเดือน</h2></div><div class="tbl-wrap">'+(mRows?'<table style="min-width:960px;margin-top:8px"><thead><tr><th>เดือน</th><th class="r">เคสเคลม</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th><th class="r">NIM รับภาระ</th><th class="r">อัตราได้รับชดเชย</th></tr></thead><tbody>'+mRows+'</tbody></table>':'<div class="empty">ยังไม่มีเคสเคลม</div>')+'</div></section>';
