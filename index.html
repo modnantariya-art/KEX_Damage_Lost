@@ -184,6 +184,7 @@ var FD = {
   sender:{ l:'ผู้ส่ง / บริษัทลูกค้า', t:'text' },
   service_type:{ l:'ประเภทบริการ', t:'select', list:'service_type' },
   product_desc:{ l:'รายละเอียดสินค้า', t:'text' },
+  product_group:{ l:'กลุ่มสินค้า', t:'select', list:'product_group', hint:'แก้/เพิ่มกลุ่มได้ในชีต Lists คอลัมน์ U' },
   goods_value:{ l:'มูลค่าสินค้า (บาท)', t:'money' },
   incident_detail:{ l:'รายละเอียดเหตุการณ์', t:'textarea', wide:true },
   cc_action:{ l:'ความประสงค์ผู้รับ (จาก CC)', t:'select', list:'cc_action', hint:'นำส่ง / ส่งคืน / ทำลาย' },
@@ -450,6 +451,7 @@ function viewDashboard(){
       '<div style="border-top:1px solid var(--line2);padding-top:14px;display:flex;flex-direction:column;gap:8px"><b style="font-size:14px">ช่องทางรับรู้เคส</b>'+split2(cur.length-selfFiled.length,selfFiled.length,'KEX แจ้ง','KEX ไม่ได้แจ้ง (ลูกค้ายื่นเอง)')+'</div></section>'+
     '<section class="card pad" style="display:flex;flex-direction:column;gap:16px"><h2>Top จุดเกิดเหตุ / Hub KEX</h2>'+hbars(topN(cur,'incident_location',5))+'</section>'+
     '<section class="card pad" style="display:flex;flex-direction:column;gap:16px"><h2>Top DC ต้นทาง</h2>'+hbars(topN(cur,'origin_dc',5))+'</section>'+
+    '<section class="card pad" style="display:flex;flex-direction:column;gap:16px"><h2>Top กลุ่มสินค้า</h2>'+hbars(topN(cur,'product_group',5))+'</section>'+
   '</div>'+
   '<section class="card"><div class="pad" style="padding-bottom:12px"><h2>เคสที่ค้างกับ KEX · ใช้ทวงในที่ประชุม</h2><div class="desc" style="font-size:13px">ฝั่ง KEX ยังไม่จบ: รอแจ้งเคลม KEX · รอผล KEX · รอเงิน KEX (ทุกเดือน) · เรียงตามวันตั้งแต่แจ้งเคลม</div></div>'+
   (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>เคลมกับ KEX</th><th>วันที่แจ้งเคลม KEX</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่แจ้ง</th><th>SLA</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
@@ -573,7 +575,8 @@ function dueAmount(c){ return num(c.claim_amount)!=null ? num(c.claim_amount) : 
 /* ขั้นตอนของเคส (บนสุดของหน้า) */
 function stepper(c){
   var k=code(c.status), src2=c.source===SRC[1];
-  var steps = src2 ? [['N1','ลูกค้ายื่นเคลมผ่านเว็บ']] : [['O','KEX แจ้ง · เปิดเคส'],['A1','รอลูกค้ายื่นเคลม']];
+  var steps = (src2 && !c.nim_claim_no) ? [['O','ลูกค้าแจ้ง · เปิดเคส'],['A1','รอใส่เลขเคลม NIM']]
+    : src2 ? [['N1','ลูกค้ายื่นเคลมผ่านเว็บ']] : [['O','KEX แจ้ง · เปิดเคส'],['A1','รอลูกค้ายื่นเคลม']];
   var early = !src2 && (k==='X4'||k==='X6') && !c.cust_claim_date;
   if(early) steps.push([k,'ปิด · '+CLOSE[k]]);
   else if(k==='X5') steps.push(['X5','ปิด · ลูกค้าไม่ยื่นเคลม']);
@@ -710,7 +713,7 @@ function closedPanel(c, used){
 function infoSections(c, used){
   var k=code(c.status), src2=c.source===SRC[1];
   var secs=[];
-  secs.push(['ข้อมูลเคส · เหตุการณ์', ['owner'].concat(src2?[]:['kex_notice_date'], ['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','goods_value','incident_detail'])]);
+  secs.push(['ข้อมูลเคส · เหตุการณ์', ['owner'].concat(src2?[]:['kex_notice_date'], ['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','product_group','goods_value','incident_detail'])]);
   if(!src2) secs.push(['ตรวจเงื่อนไขเบื้องต้น', ['prescreen'].concat(['cc_action','claim_intent','cc_date'].filter(function(x){ return c[x]; }))]);
   if(src2 || c.cust_claim_date || c.nim_claim_no || (k!=='A1' && k!=='X4' && k!=='X6')){
     var cu=['cust_claim_date','nim_claim_no','goods_received_date'];
@@ -742,7 +745,7 @@ function viewForm(){
     var src=c.source, keys=['source','owner'];
     if(src===SRC[0]) keys=keys.concat(['kex_notice_date','prescreen'], c.prescreen==='ไม่เข้าเงื่อนไข'?['not_eligible_reason']:[]);
     if(src===SRC[1]) keys=keys.concat(['cust_claim_date','nim_claim_no','goods_received_date']);
-    keys=keys.concat(['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','goods_value','incident_detail']);
+    keys=keys.concat(['tracking_no','nim_tracking_no','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','product_group','goods_value','incident_detail']);
     var gvOpt = src===SRC[1] ? {} : { goods_value:{ noReq:true, hint:'ยังไม่รู้ เว้นว่างได้ · ต้องกรอกก่อนกด “เข้าเงื่อนไข”' } };
     var route = src===SRC[1] ? note('ลูกค้ายื่นเคลมเอง (KEX ไม่ได้แจ้ง) → เปิดเคสแล้วไป <b>รอพิจารณาเงื่อนไข</b> · ระบบนับเป็นเคสที่ KEX ไม่ได้แจ้ง','good')
       : src===SRC[0] ? (c.prescreen==='ไม่เข้าเงื่อนไข'
