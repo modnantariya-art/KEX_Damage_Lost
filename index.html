@@ -136,7 +136,7 @@ details.sec:not([open]){padding-top:14px;padding-bottom:14px}
 .dg2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:12px}
 .dg4{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:12px}.dtop{min-width:0}
 .dtop h3{font-size:15px;margin-bottom:6px}
-table.mini td,table.mini th{padding:6px 8px;font-size:13px}.mini .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}table.mini.fixed{table-layout:fixed}table.mini.fixed .nm{max-width:none}.pb{background:var(--line2);border-radius:4px;height:10px}.pb i{display:block;height:100%;border-radius:4px}
+table.mini td,table.mini th{padding:6px 8px;font-size:13px}.mini .nm{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}table.mini.fixed{table-layout:fixed}table.mini.fixed .nm{max-width:none;white-space:normal;overflow:visible;line-height:1.35}.pb{background:var(--line2);border-radius:4px;height:10px}.pb i{display:block;height:100%;border-radius:4px}
 tr.oth td{color:var(--muted);font-style:italic}tr.tot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
 [data-drill]{cursor:pointer}[data-drill]:hover{background:#F2F6FC}[data-drill]:focus-visible{outline:2px solid var(--primary)}
 .tile[data-drill]:hover{border-color:var(--primary)}
@@ -155,7 +155,7 @@ tr.oth td{color:var(--muted);font-style:italic}tr.tot td{font-weight:700;border-
 .dmoney{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}.dmoney .tile{flex:1 1 150px}.darr{align-self:center;color:#9AA3AE;font-size:20px}
 .dlate{font-size:13px;margin-bottom:8px}
 .legend [data-drill]{padding:2px 4px;border-radius:4px}
-.sumtbl .nm{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sumtbl.fx{table-layout:fixed;min-width:430px}.sumtbl.fx .nm{max-width:none}.sumtbl.fx td,.sumtbl.fx th{padding:8px 6px}.sumtbl .nm2{min-width:180px}.sumtbl td.r,.sumtbl th.r{white-space:nowrap}
+.sumtbl .nm{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sumtbl.fx{table-layout:fixed;min-width:430px}.sumtbl.fx .nm{max-width:none;white-space:normal;overflow:visible;line-height:1.35}.sumtbl.fx td,.sumtbl.fx th{padding:8px 6px}.sumtbl .nm2{min-width:180px}.sumtbl td.r,.sumtbl th.r{white-space:nowrap}
 .sumtbl tr.zero td{color:#9AA3AE}.sumtbl tr.top td{background:var(--claim-soft)}.sumtbl tr.rep td{background:#FFFAFA}
 .tagx{font-size:11px;color:#B45309;background:var(--claim-soft);border-radius:4px;padding:1px 6px}.tagr{font-size:11px;color:var(--red);background:var(--red-soft);border-radius:4px;padding:1px 6px}
 .xt td,.xt th{padding:7px 8px;font-size:13px}.xt td.cx,.xt td.c0{text-align:center;font-weight:600;border:2px solid var(--card);border-radius:4px}.xt td.c0{color:#C8CDD4}.xt .nm{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xt tfoot td{font-weight:700;border-top:2px solid var(--line)}
@@ -453,7 +453,7 @@ function delta(cur, prev, fmt, first){
   if(first) return '<span>เดือนแรกที่ส่งกับ KEX</span>';
   if(cur==null || prev==null) return '';
   var d=cur-prev; if(Math.abs(d)<1e-9) return '<span>เท่าเดือนก่อน</span>';
-  return '<span class="'+(d>0?'up':'dn')+'">'+(d>0?'▲ ':'▼ ')+fmt(Math.abs(d))+'</span> จากเดือนก่อน';
+  return '<span class="'+(d>0?'up':'dn')+'">'+(d>0?'▲ ':'▼ ')+fmt(Math.abs(d))+'</span> จากเดือนก่อน'+(delta.open?' <span class="tagx">เดือนนี้ยังไม่จบ</span>':'');
 }
 function dTop(title, key, rows, total, label){
   var cnt={}, bills={};
@@ -480,6 +480,7 @@ function viewDashboard(){
   var inM=function(m){ return function(c){ return reportMonth(c)===m; }; };
   var cur=S.cases.filter(inM(D.month)), pm=addMonths(D.month,-1), prev=S.cases.filter(inM(pm)), isFirst=pm<first;
   var N=cur.length, vol=volumeOf(D.month), pvol=volumeOf(pm);
+  delta.open = D.month===ym(S.boot.today); /* เดือนปัจจุบันยังไม่จบ: เทียบเดือนก่อนยังไม่สมบูรณ์ */
   var rate=vol ? N/vol*100 : null, prate=pvol ? prev.length/pvol*100 : null;
   var f2=function(x){ return x.toFixed(2); }, f0=function(x){ return String(Math.round(x)); };
   var byType=function(arr,t){ return arr.filter(function(c){ return t==='lost' ? (c.incident_type==='สูญหาย'||c.incident_type==='สูญหายบางส่วน') : c.incident_type===t; }); };
@@ -1003,7 +1004,7 @@ function sRow(r, total, mx, showCmp, label){
 function sTable(title, col, list, cur, showCmp, prevLabel, label, extraRow, foot){
   var mx=Math.max.apply(null,list.map(function(r){return r.rows.length;}).concat([0]));
   var N=cur.length, L=cur.filter(isLost).length;
-  return '<section class="card pad"><h2 style="font-size:16px;margin-bottom:8px">'+title+'</h2><div class="tbl-wrap"><table class="sumtbl fx"><colgroup><col><col style="width:44px"><col style="width:52px"><col style="width:60px"><col style="width:64px"><col style="width:56px"><col style="width:72px"></colgroup><thead><tr><th>'+col+'</th><th class="r">บิล</th><th class="r">กล่อง</th><th class="r">เสียหาย</th><th class="r">สูญหาย*</th><th class="r">%</th><th class="r">เทียบ '+esc(prevLabel)+'</th></tr></thead><tbody>'+
+  return '<section class="card pad"><h2 style="font-size:16px;margin-bottom:8px">'+title+'</h2><div class="tbl-wrap"><table class="sumtbl fx"><colgroup><col><col style="width:44px"><col style="width:52px"><col style="width:60px"><col style="width:64px"><col style="width:56px"><col style="width:72px"></colgroup><thead><tr><th>'+col+'</th><th class="r">บิล</th><th class="r">กล่อง</th><th class="r">เสียหาย</th><th class="r">สูญหาย*</th><th class="r">%</th><th class="r">เทียบ '+esc(prevLabel)+(sTable.open?'**':'')+'</th></tr></thead><tbody>'+
     list.map(function(r){ return sRow(r,N,mx,showCmp,label); }).join('')+(extraRow||'')+
     '</tbody><tfoot><tr><td>รวม</td><td class="r">'+billCount(cur)+'</td><td class="r">'+N+'</td><td class="r">'+(N-L)+'</td><td class="r">'+L+'</td><td class="r">'+(N?'100%':'–')+'</td><td></td></tr></tfoot></table></div>'+(foot||'')+'</section>';
 }
@@ -1022,7 +1023,8 @@ function viewSummary(){
   if(!U.month || months.indexOf(U.month)<0){ var wc=months.filter(function(m){ return S.cases.some(function(c){return reportMonth(c)===m;}); }); U.month=wc[0]||months[0]; }
   var cur=S.cases.filter(function(c){ return reportMonth(c)===U.month; });
   var pm=addMonths(U.month,-1), prev=S.cases.filter(function(c){ return reportMonth(c)===pm; }), showCmp=pm>=first, prevLabel=mShort(pm);
-  var N=cur.length;
+  var openM=U.month===ym(S.boot.today);
+  var N=cur.length; sTable.open=openM;
   var bills=function(arr){ return billCount(arr); };
   var byT=function(t){ return cur.filter(function(c){ return c.incident_type===t; }); };
   var tile=function(l,v,s,p,main){ return '<div class="card tile'+(main?' main':'')+'"><span class="l">'+l+'</span><span class="v">'+v+(p!=null?'<small>'+p+'</small>':'')+'</span><span class="s">'+s+'</span></div>'; };
@@ -1076,11 +1078,11 @@ function viewSummary(){
   '<button type="button" class="btn primary" id="s-img" style="align-self:flex-end">บันทึกเป็นรูป</button></div>'+
   (miss?'<div class="msg note no-print">'+WARN_ICON+' มี '+miss+' เคสในรอบนี้ที่ยังไม่ได้ใส่ Size หรือกลุ่มสินค้า · นับอยู่ในแถว “ไม่ระบุ”</div>':'')+
   '<div id="sum-sheet" style="display:flex;flex-direction:column;gap:12px;background:var(--bg);padding:4px">'+
-    '<div><h2 style="font-size:22px;line-height:30px">สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h2><div class="desc">รอบข้อมูล '+esc(mLabel(U.month))+' · บิล KEX = จำนวนเลข KEX (กล่อง) · % คิดจากจำนวนกล่อง</div></div>'+
+    '<div><h2 style="font-size:22px;line-height:30px">สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h2><div class="desc">รอบข้อมูล '+esc(mLabel(U.month))+(openM?' (ยังไม่จบเดือน)':'')+' · บิล KEX = จำนวนเลข KEX (กล่อง) · % คิดจากจำนวนกล่อง</div></div>'+
     '<div class="sumtiles">'+tiles+'</div>'+
     (N ? '<div class="sumgrid">'+sTable('แยกตามกลุ่มสินค้า','กลุ่มสินค้า',groups,cur,showCmp,prevLabel,'กลุ่มสินค้า')+sTable('แยกตามช่วง Size','ช่วง Size',sizes,cur,showCmp,prevLabel,'Size')+'</div>'+
       cross+'<div class="sumgrid">'+dcTbl+sndTbl+'</div>'+
-      '<div class="desc" style="font-size:12px">* สูญหาย = สูญหาย + สูญหายบางส่วน · เทียบ '+esc(prevLabel)+' = จำนวนกล่องเทียบเดือนก่อน'+(showCmp?'':' (ยังไม่มีเดือนก่อน)')+' · แถวสีส้ม = มากที่สุด · แถวสีเทา = 0</div>'
+      '<div class="desc" style="font-size:12px">* สูญหาย = สูญหาย + สูญหายบางส่วน · เทียบ '+esc(prevLabel)+' = จำนวนกล่องเทียบเดือนก่อน'+(showCmp?'':' (ยังไม่มีเดือนก่อน)')+' · แถวสีส้ม = มากที่สุด · แถวสีเทา = 0'+(openM?' · <b>** '+esc(mLabel(U.month))+' ยังไม่จบเดือน ตัวเลขยังเพิ่มได้ การเทียบเดือนก่อนยังไม่สมบูรณ์</b>':'')+'</div>'
       : '<div class="card empty">ยังไม่มีเคสในรอบนี้</div>')+
   '</div>'+pop;
 }
