@@ -256,9 +256,12 @@ function code(st){ return String(st||'').trim().split(/\s+/)[0]; }
 function closed(st){ return code(st).charAt(0)==='X'; }
 function stOf(cd){ return (S.boot.statuses||[]).filter(function(s){ return s.code===cd; })[0] || null; }
 function stLabel(cd){ var s=stOf(cd); return s ? s.label : cd; }
-function caseMonth(c){ return ym(c.kex_notice_date || c.cust_claim_date || c.opened_at); }
+/* เดือนที่ได้รับแจ้ง (KEX แจ้ง / ลูกค้ายื่นเคลม / วันเปิดเคส) */
+function noticeMonth(c){ return ym(c.kex_notice_date || c.cust_claim_date || c.opened_at); }
+/* ทุกหน้า (Dashboard · กระทบยอดเงิน · สรุปรายเดือน) ตัดรอบเดือนจาก "รอบเดือนข้อมูล" ตัวเดียวกัน */
+function caseMonth(c){ return reportMonth(c); }
 /* รอบเดือนของหน้าสรุปรายเดือน KEX (ว่าง = เดือนที่ได้รับแจ้ง) */
-function reportMonth(c){ return ym(c.report_month) || caseMonth(c); }
+function reportMonth(c){ return ym(c.report_month) || noticeMonth(c); }
 /* ช่องที่ยังไม่ได้กรอก (ใช้ในหน้าสรุป / วิเคราะห์) */
 var INFO_KEYS = ['product_group','size','bill_date','kex_send_date'];
 function missingInfo(c){ return INFO_KEYS.filter(function(k){ return !c[k]; }); }
@@ -468,7 +471,7 @@ function viewDashboard(){
   var lateIds={}; pend.forEach(function(p){ if(slaItems(p.c).some(function(i){return i.late && i.code.charAt(0)==='K';})) lateIds[p.c.case_id]=1; });
 
   return ''+
-  '<div class="head"><div class="title"><h1>คุณภาพการขนส่ง KEX</h1><div class="desc">สรุปสำหรับประชุมกับ KEX · นับตามวันที่รับรู้เคส (KEX แจ้ง หรือ ลูกค้ายื่นเคลม) · '+esc(mLabel(D.month))+(D.service?' · '+esc(D.service):'')+'</div></div>'+
+  '<div class="head"><div class="title"><h1>คุณภาพการขนส่ง KEX</h1><div class="desc">สรุปสำหรับประชุมกับ KEX · นับตามรอบเดือนข้อมูล (เดียวกับหน้าสรุปรายเดือน KEX) · '+esc(mLabel(D.month))+(D.service?' · '+esc(D.service):'')+'</div></div>'+
   '<label class="f no-print">เดือน<select id="d-month">'+opts(months.map(function(m){return {v:m,l:mLabel(m)};}),D.month)+'</select></label>'+
   '<button type="button" class="btn primary no-print" id="d-print">พิมพ์ / PDF ประชุม</button></div>'+
   '<div class="grid-tiles">'+tiles.map(function(t){return '<div class="card tile'+(t[3]?' warn':'')+'"><span class="l">'+t[0]+'</span><span class="v">'+esc(t[1])+'</span><span class="s">'+esc(t[2])+'</span></div>';}).join('')+'</div>'+
@@ -978,7 +981,7 @@ function viewReconcile(){
   var tab=function(id,l,n){return '<button type="button" role="tab" data-tab="'+id+'" aria-selected="'+(R.tab===id)+'">'+l+(n!=null?' · '+n:'')+'</button>';};
   return ''+
   '<div class="head"><div class="title"><h1>กระทบยอดเงิน</h1><div class="desc">เคลมกับ KEX: เรียกร้อง → อนุมัติ → รับเงิน · โอนเงินลูกค้า: = ยอดเรียกร้อง, โอนได้เลยไม่ต้องรอ KEX</div></div>'+
-  '<label class="f">เดือนที่รับรู้เคส<select id="r-month">'+opts([{v:'all',l:'ทุกเดือน'}].concat(months.map(function(m){return {v:m,l:mLabel(m)};})),R.month)+'</select></label>'+
+  '<label class="f">รอบเดือนข้อมูล<select id="r-month">'+opts([{v:'all',l:'ทุกเดือน'}].concat(months.map(function(m){return {v:m,l:mLabel(m)};})),R.month)+'</select></label>'+
   (S.boot.sheetUrl?'<a class="btn" href="'+esc(S.boot.sheetUrl)+'" target="_blank" rel="noopener" style="align-self:flex-end">เปิด Google Sheet</a>':'')+'</div>'+
   '<div class="grid-tiles">'+tiles.map(function(t){return '<div class="card tile'+(t[3]?' warn':'')+'"><span class="l">'+t[0]+'</span><span class="v">'+int(t[1])+'</span><span class="s">บาท · '+esc(t[2])+'</span></div>';}).join('')+'</div>'+
   '<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2>เส้นทางเงิน (เทียบกับยอดเรียกร้อง)</h2>'+
