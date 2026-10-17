@@ -25,6 +25,7 @@ nav button{all:unset;display:block;padding:12px;border-radius:8px;color:#C9D3E0;
 nav button:hover{background:#243243}
 nav button[aria-current="page"]{background:#2B3A4C;color:#fff;font-weight:600}
 nav button:focus-visible{outline:2px solid #9DB4D6}
+nav button:disabled{opacity:.5;cursor:wait}
 nav .user{margin-top:auto;font-size:12px;color:#AEB6C2;padding:16px 12px 0;word-break:break-all}
 main{flex:999 1 560px;min-width:0;padding:32px 40px;display:flex;flex-direction:column;gap:24px}
 @media (max-width:700px){main{padding:20px 16px}nav{flex-direction:row;flex-wrap:wrap;padding:12px}nav .sub,nav .user{display:none}}
@@ -153,6 +154,8 @@ details.sec:not([open]){padding-top:14px;padding-bottom:14px}
     <button type="button" data-page="form">เปิดเคสใหม่</button>
     <button type="button" data-page="summary">สรุปรายเดือน KEX</button>
     <button type="button" data-page="reconcile">กระทบยอดเงิน</button>
+    <button type="button" id="refresh" title="ดึงข้อมูลล่าสุดจาก Google Sheet" style="margin-top:12px;border:1px solid #3A4A5E;display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" stroke-linecap="round"/><path d="M12.5 1.8v2.6H9.9" stroke-linecap="round" stroke-linejoin="round"/></svg><span>รีเฟรชข้อมูล</span></button>
+    <div id="synced" style="font-size:12px;color:#AEB6C2;padding:4px 12px 0"></div>
     <div class="user"><span id="user"></span><br><button type="button" id="logout" style="padding:8px 0;font-size:12px;text-decoration:underline">ออกจากระบบ</button></div>
   </nav>
   <main id="main"><div class="loading">กำลังโหลดข้อมูล…</div></main>
@@ -225,6 +228,9 @@ var FD = {
   kex_paid_amount:{ l:'ยอดรับจริงจาก KEX (บาท)', t:'money', hint:'ตั้งต้นจากยอดอนุมัติ' },
   kex_payment_ref:{ l:'เลขอ้างอิงการโอน KEX', t:'text' },
   cust_paid_date:{ l:'วันที่โอนเงินลูกค้า', t:'date' },
+  overpay_action:{ l:'วิธีจัดการยอดที่ KEX โอนเกิน', t:'select', list:'overpay_action' },
+  overpay_date:{ l:'วันที่จัดการเสร็จ', t:'date' },
+  overpay_note:{ l:'หมายเหตุ / เลขอ้างอิง', t:'text' },
   cust_paid_amount:{ l:'ยอดโอนให้ลูกค้า (บาท)', t:'money', hint:'ตั้งต้นจากยอดเรียกร้อง' }
 };
 var REQ = ['product_group','size','source','owner','kex_notice_date','cust_claim_date','nim_claim_no','tracking_no','nim_tracking_no','incident_type','origin_dc','sender',
@@ -387,7 +393,7 @@ function render(){
   else if(S.page==='reconcile') h=viewReconcile();
   else if(S.page==='summary') h=viewSummary();
   if(oldConnector()) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังเป็นรุ่นเก่า</b> — หน้าเว็บนี้ใช้กับตัวเชื่อมรุ่นใหม่ (แยกฝั่ง KEX / NIM) · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
-  else if(!(S.boot.lists||{}).size || !stOf('KN')) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังไม่ใช่รุ่นล่าสุด</b> — ยังไม่มีรายการ Size / วันที่บิล · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
+  else if(!(S.boot.lists||{}).overpay_action || !stOf('KN')) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังไม่ใช่รุ่นล่าสุด</b> — ยังไม่มีรายการ Size / วันที่บิล · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
   m.innerHTML=h;
   bind();
 }
@@ -426,7 +432,7 @@ function viewDashboard(){
   var decided=cur.filter(function(c){return c.kex_decision;});
   var approved=decided.filter(function(c){return c.kex_decision!=='ปฏิเสธ';});
   var paidRows=cur.filter(function(c){return num(c.kex_paid_amount)!=null;});
-  var paid=paidRows.reduce(function(s,c){return s+num(c.kex_paid_amount);},0);
+  var paid=paidRows.reduce(function(s,c){return s+kexPaidCapped(c);},0);
   var paidClaim=paidRows.reduce(function(s,c){return s+(num(c.claim_amount)||0);},0);
   var payDays=cur.map(function(c){ return c.kex_paid_date ? daysBetween(c.claim_submit_date, c.kex_paid_date) : null; }).filter(function(x){return x!=null;});
   var avgPay=payDays.length ? (payDays.reduce(function(a,b){return a+b;},0)/payDays.length).toFixed(1) : '–';
@@ -596,6 +602,20 @@ function datalists(){
   return Object.keys(S.boot.lists).map(function(k){ return '<datalist id="dl-'+k+'">'+(S.boot.lists[k]||[]).map(function(i){return '<option value="'+esc(i)+'">';}).join('')+'</datalist>'; }).join('');
 }
 function dueAmount(c){ return num(c.claim_amount)!=null ? num(c.claim_amount) : num(c.goods_value); }
+/* ยอดที่ KEX โอนเกิน = รับจริง − ยอดที่น้อยกว่าระหว่างยอดเรียกร้องกับยอดอนุมัติ */
+function overpayBase(c){ var b=[num(c.claim_amount),num(c.approved_amount)].filter(function(x){return x!=null;}); return b.length ? Math.min.apply(null,b) : null; }
+function overpay(c){ var p=num(c.kex_paid_amount), b=overpayBase(c); return (p!=null && b!=null && p>b) ? Math.round((p-b)*100)/100 : 0; }
+function overpayOpen(c){ return overpay(c)>0 && !c.overpay_action; }
+/* ยอดรับจาก KEX สำหรับคิดอัตราได้รับชดเชย (ไม่นับส่วนที่โอนเกิน) */
+function kexPaidCapped(c){ return Math.max(0,(num(c.kex_paid_amount)||0)-overpay(c)); }
+function overpaySec(c, used){
+  var o=overpay(c); if(!o) return '';
+  var done=!!c.overpay_action;
+  return '<section class="card sec"'+(done?'':' style="border:2px solid #B45309"')+'><span class="tag" style="color:var(--claim-ink)">'+(done?'จัดการยอดโอนเกินแล้ว':'รอจัดการ')+'</span>'+
+    '<h2>KEX โอนเกิน '+money(o)+' บาท</h2>'+
+    '<div class="desc" style="font-size:13px">รับจริง '+money(c.kex_paid_amount)+' · ยอดเรียกร้อง '+money(c.claim_amount)+(num(c.approved_amount)!=null?' · ยอดอนุมัติ '+money(c.approved_amount):'')+' · เคสปิดได้ตามปกติ ยอดนี้ติดตามในหน้ากระทบยอดเงิน · ระหว่างรอ KEX ตอบ จดใน “บันทึกการติดตาม”</div>'+
+    fgrid(['overpay_action','overpay_date','overpay_note'],c,used)+acts(abtn('save','บันทึกการจัดการยอดโอนเกิน'))+'</section>';
+}
 
 /* ขั้นตอนของเคส (บนสุดของหน้า) */
 function stepper(c){
@@ -815,7 +835,7 @@ function viewForm(){
   '</aside>';
   var info=infoSections(c, used);
   return back+head+stepper(F.detail.caseData)+
-    '<div class="cols"><div class="left"><section class="card sec'+(isClosed?'':' current')+'">'+panel+msg+'</section>'+info+'</div>'+side+'</div>'+datalists();
+    '<div class="cols"><div class="left"><section class="card sec'+(isClosed?'':' current')+'">'+panel+msg+'</section>'+overpaySec(c,used)+info+'</div>'+side+'</div>'+datalists();
 }
 function collectForm(){
   var o={}; document.querySelectorAll('#main [data-k]').forEach(function(el){ o[el.dataset.k]=el.value; }); return o;
@@ -941,17 +961,20 @@ function viewReconcile(){
   var recv=rows.filter(function(c){return recvAmt(c)>0;});
   var pay=rows.filter(function(c){return payAmt(c)>0;});
   var bur=rows.filter(function(c){return burdenOf(c)>0;});
+  var over=rows.filter(function(c){return overpay(c)>0;}).sort(function(a,b){ return (overpayOpen(b)?1:0)-(overpayOpen(a)?1:0) || String(a.kex_paid_date).localeCompare(String(b.kex_paid_date)); });
+  var overOpen=over.filter(overpayOpen);
   var tC=sum(rows,'claim_amount'), tA=sum(rows,'approved_amount'), tP=sum(rows,'kex_paid_amount'), tU=sum(rows,'cust_paid_amount');
   var tiles=[['ยอดเรียกร้อง',tC,rows.length+' เคสเคลม',0],['ยอดอนุมัติ (KEX)',tA,'อนุมัติ '+cnt(rows,'approved_amount')+' เคส',0],['รับจริงจาก KEX',tP,cnt(rows,'kex_paid_amount')+' เคส',0],
     ['โอนลูกค้าแล้ว (NIM)',tU,cnt(rows,'cust_paid_amount')+' เคส',0],['ค้างรับจาก KEX',sum(recv,recvAmt),recv.length+' เคส · อนุมัติแล้วยังไม่ได้เงิน',1],
-    ['ค้างโอนลูกค้า',sum(pay,payAmt),pay.length+' เคส',1],['ส่วนต่างที่ NIM รับภาระ',sum(bur,burdenOf),bur.length+' เคส · โอนลูกค้ามากกว่าที่ได้จาก KEX',1]];
+    ['ค้างโอนลูกค้า',sum(pay,payAmt),pay.length+' เคส',1],['ส่วนต่างที่ NIM รับภาระ',sum(bur,burdenOf),bur.length+' เคส · โอนลูกค้ามากกว่าที่ได้จาก KEX',1],
+    ['KEX โอนเกิน รอจัดการ',sum(overOpen,overpay),overOpen.length+' เคส · '+(over.length-overOpen.length)+' เคสจัดการแล้ว',overOpen.length?1:0]];
   var funnel=[['ยอดเรียกร้อง',tC],['ยอดอนุมัติ',tA],['รับจริงจาก KEX',tP],['โอนลูกค้าแล้ว',tU]];
-  var tabRows={ receive:recv, pay:pay, burden:bur, all:rows }[R.tab]||rows;
-  var pendFn={ receive:recvAmt, pay:payAmt, burden:burdenOf, all:null }[R.tab];
-  var pendLabel={ receive:'ค้างรับ', pay:'ค้างโอน', burden:'NIM รับภาระ' }[R.tab];
+  var tabRows={ receive:recv, pay:pay, burden:bur, over:over, all:rows }[R.tab]||rows;
+  var pendFn={ receive:recvAmt, pay:payAmt, burden:burdenOf, over:overpay, all:null }[R.tab];
+  var pendLabel={ receive:'ค้างรับ', pay:'ค้างโอน', burden:'NIM รับภาระ', over:'โอนเกิน' }[R.tab];
   var byM={}; claimed.forEach(function(c){ var m=caseMonth(c); (byM[m]=byM[m]||[]).push(c); });
   var mRows=Object.keys(byM).sort().reverse().map(function(m){ var a=byM[m]; var pr=a.filter(function(c){return num(c.kex_paid_amount)!=null;});
-    return '<tr><td>'+mLabel(m)+'</td><td class="r">'+a.length+'</td><td class="r">'+money(sum(a,'claim_amount'))+'</td><td class="r">'+money(sum(a,'approved_amount'))+'</td><td class="r">'+money(sum(a,'kex_paid_amount'))+'</td><td class="r">'+money(sum(a,'cust_paid_amount'))+'</td><td class="r">'+money(sum(a,burdenOf))+'</td><td class="r">'+pct(sum(pr,'kex_paid_amount'),sum(pr,'claim_amount'))+'</td></tr>'; }).join('');
+    return '<tr><td>'+mLabel(m)+'</td><td class="r">'+a.length+'</td><td class="r">'+money(sum(a,'claim_amount'))+'</td><td class="r">'+money(sum(a,'approved_amount'))+'</td><td class="r">'+money(sum(a,'kex_paid_amount'))+'</td><td class="r">'+money(sum(a,'cust_paid_amount'))+'</td><td class="r">'+money(sum(a,burdenOf))+'</td><td class="r">'+pct(sum(pr,kexPaidCapped),sum(pr,'claim_amount'))+'</td></tr>'; }).join('');
   var tab=function(id,l,n){return '<button type="button" role="tab" data-tab="'+id+'" aria-selected="'+(R.tab===id)+'">'+l+(n!=null?' · '+n:'')+'</button>';};
   return ''+
   '<div class="head"><div class="title"><h1>กระทบยอดเงิน</h1><div class="desc">เคลมกับ KEX: เรียกร้อง → อนุมัติ → รับเงิน · โอนเงินลูกค้า: = ยอดเรียกร้อง, โอนได้เลยไม่ต้องรอ KEX</div></div>'+
@@ -960,9 +983,9 @@ function viewReconcile(){
   '<div class="grid-tiles">'+tiles.map(function(t){return '<div class="card tile'+(t[3]?' warn':'')+'"><span class="l">'+t[0]+'</span><span class="v">'+int(t[1])+'</span><span class="s">บาท · '+esc(t[2])+'</span></div>';}).join('')+'</div>'+
   '<section class="card pad" style="display:flex;flex-direction:column;gap:12px"><h2>เส้นทางเงิน (เทียบกับยอดเรียกร้อง)</h2>'+
   funnel.map(function(f){ var p=tC?Math.round(f[1]/tC*100):0; return '<div class="hbar" style="grid-template-columns:minmax(110px,160px) minmax(0,1fr) 160px"><span>'+f[0]+'</span><div class="track" style="height:20px"><div class="fill" style="height:20px;width:'+Math.min(p,100)+'%"></div></div><span style="text-align:right"><b>'+int(f[1])+'</b> · '+p+'%</span></div>'; }).join('')+'</section>'+
-  '<section class="card"><div class="tabs" role="tablist">'+tab('receive','ค้างรับจาก KEX',recv.length)+tab('pay','ค้างโอนลูกค้า',pay.length)+tab('burden','NIM รับภาระ',bur.length)+tab('all','ทุกเคสเคลม',null)+'</div>'+
-  (tabRows.length?'<div class="tbl-wrap"><table style="min-width:1100px"><thead><tr><th>เลขเคส</th><th>ผู้ส่ง</th><th>เคลมกับ KEX</th><th>โอนเงินลูกค้า</th><th>ผล KEX</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th>'+(pendFn?'<th class="r">'+pendLabel+'</th>':'')+'<th>ติดตามล่าสุด</th></tr></thead><tbody>'+
-  tabRows.map(function(c){return '<tr><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="who">'+esc(c.sender)+'</td><td>'+chip(kexCode(c))+'</td><td>'+chip(c.nim_track)+'</td><td>'+esc(c.kex_decision||'–')+'</td><td class="r">'+money(c.claim_amount)+'</td><td class="r">'+money(c.approved_amount)+'</td><td class="r">'+money(c.kex_paid_amount)+'</td><td class="r">'+money(c.cust_paid_amount)+'</td>'+(pendFn?'<td class="r"><b>'+money(pendFn(c))+'</b></td>':'')+'<td>'+fmtD(c.last_followup)+'</td></tr>';}).join('')+
+  '<section class="card"><div class="tabs" role="tablist">'+tab('receive','ค้างรับจาก KEX',recv.length)+tab('pay','ค้างโอนลูกค้า',pay.length)+tab('burden','NIM รับภาระ',bur.length)+tab('over','KEX โอนเกิน',overOpen.length)+tab('all','ทุกเคสเคลม',null)+'</div>'+
+  (tabRows.length?'<div class="tbl-wrap"><table style="min-width:1100px"><thead><tr><th>เลขเคส</th><th>ผู้ส่ง</th><th>เคลมกับ KEX</th><th>โอนเงินลูกค้า</th><th>ผล KEX</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th>'+(pendFn?'<th class="r">'+pendLabel+'</th>':'')+'<th>'+(R.tab==='over'?'การจัดการ':'ติดตามล่าสุด')+'</th></tr></thead><tbody>'+
+  tabRows.map(function(c){return '<tr><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="who">'+esc(c.sender)+'</td><td>'+chip(kexCode(c))+'</td><td>'+chip(c.nim_track)+'</td><td>'+esc(c.kex_decision||'–')+'</td><td class="r">'+money(c.claim_amount)+'</td><td class="r">'+money(c.approved_amount)+'</td><td class="r">'+money(c.kex_paid_amount)+'</td><td class="r">'+money(c.cust_paid_amount)+'</td>'+(pendFn?'<td class="r"><b>'+money(pendFn(c))+'</b></td>':'')+'<td>'+(R.tab==='over'?(c.overpay_action?esc(c.overpay_action)+' · '+fmtD(c.overpay_date):'<span class="late-flag">'+WARN_ICON+'รอจัดการ'+(c.kex_paid_date?' · '+daysSince(c.kex_paid_date)+' วัน':'')+'</span>'):fmtD(c.last_followup))+'</td></tr>';}).join('')+
   '</tbody></table></div>':'<div class="empty">ไม่มีรายการ</div>')+'</section>'+
   '<section class="card"><div class="pad" style="padding-bottom:0"><h2>สรุปรายเดือน</h2></div><div class="tbl-wrap">'+(mRows?'<table style="min-width:960px;margin-top:8px"><thead><tr><th>เดือน</th><th class="r">เคสเคลม</th><th class="r">เรียกร้อง</th><th class="r">อนุมัติ</th><th class="r">รับจริง KEX</th><th class="r">โอนลูกค้า</th><th class="r">NIM รับภาระ</th><th class="r">อัตราได้รับชดเชย</th></tr></thead><tbody>'+mRows+'</tbody></table>':'<div class="empty">ยังไม่มีเคสเคลม</div>')+'</div></section>';
 }
@@ -1055,18 +1078,31 @@ function start(initData){
     if(first) go('dashboard');
     else if(!(S.page==='form' && S.busy)) render();
   };
-  if(initData){ apply(initData); return; }
+  if(initData){ apply(initData); markSynced(); return; }
   var cache=readCache();
   if(cache && cache.boot && cache.cases){ S.boot=cache.boot; S.cases=cache.cases; go('dashboard'); }
   else document.getElementById('main').innerHTML='<div class="loading">กำลังโหลดข้อมูล…</div>';
   setSync(true);
-  initCall().catch(function(e){ if(e.auth){ saveSession(null); showLogin('รหัสผ่านถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่'); } throw e; }).then(function(d){ setSync(false); apply(d); }).catch(function(e){
+  initCall().catch(function(e){ if(e.auth){ saveSession(null); showLogin('รหัสผ่านถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่'); } throw e; }).then(function(d){ setSync(false); apply(d); markSynced(); }).catch(function(e){
     setSync(false);
     if(e.auth) return;
     if(S.boot){ toast('อัปเดตข้อมูลไม่สำเร็จ: '+(e.message||e)); return; }
     document.getElementById('main').innerHTML='<div class="msg bad">โหลดข้อมูลไม่สำเร็จ: '+esc(e.message||e)+'</div><button type="button" class="btn" onclick="start()">ลองใหม่</button>';
   });
 }
+/* ปุ่มรีเฟรช: ดึงข้อมูลล่าสุดจาก Google Sheet โดยไม่ต้องโหลดหน้าใหม่ (อยู่หน้าเดิม · ตัวกรองเดิม) */
+function markSynced(){ var el=document.getElementById('synced'); if(el){ var d=new Date(); el.textContent='อัปเดตล่าสุด '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+' น.'; } }
+function refreshAll(){
+  if(S.busy || refreshAll.on) return;
+  refreshAll.on=true; var btn=document.getElementById('refresh'); if(btn) btn.disabled=true; setSync(true);
+  initCall().then(function(d){
+    S.boot=d.boot; S.cases=d.cases; saveCache(); markSynced();
+    if(S.page==='form' && S.form.caseId){ S.form.draft=null; loadDetail(S.form.caseId); }
+    render(); toast('อัปเดตข้อมูลล่าสุดแล้ว');
+  }).catch(function(e){ if(e.auth){ saveSession(null); showLogin('รหัสผ่านถูกเปลี่ยน กรุณาเข้าสู่ระบบใหม่'); return; } toast('รีเฟรชไม่สำเร็จ: '+(e.message||e)); })
+  .then(function(){ refreshAll.on=false; setSync(false); if(btn) btn.disabled=false; });
+}
+document.getElementById('refresh').onclick=refreshAll;
 document.getElementById('logout').onclick=function(){ saveSession(null); try{ localStorage.removeItem(CACHE_KEY); }catch(e){} S.cases=[]; showLogin(); };
 
 if(!API_URL){
