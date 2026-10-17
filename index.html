@@ -155,6 +155,11 @@ tr.oth td{color:var(--muted);font-style:italic}tr.tot td{font-weight:700;border-
 .dmoney{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}.dmoney .tile{flex:1 1 150px}.darr{align-self:center;color:#9AA3AE;font-size:20px}
 .dlate{font-size:13px;margin-bottom:8px}
 .legend [data-drill]{padding:2px 4px;border-radius:4px}
+.sumtbl .nm{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sumtbl.fx{table-layout:fixed;min-width:430px}.sumtbl.fx .nm{max-width:none}.sumtbl.fx td,.sumtbl.fx th{padding:8px 6px}.sumtbl .nm2{min-width:180px}.sumtbl td.r,.sumtbl th.r{white-space:nowrap}
+.sumtbl tr.zero td{color:#9AA3AE}.sumtbl tr.top td{background:var(--claim-soft)}.sumtbl tr.rep td{background:#FFFAFA}
+.tagx{font-size:11px;color:#B45309;background:var(--claim-soft);border-radius:4px;padding:1px 6px}.tagr{font-size:11px;color:var(--red);background:var(--red-soft);border-radius:4px;padding:1px 6px}
+.xt td,.xt th{padding:7px 8px;font-size:13px}.xt td.cx,.xt td.c0{text-align:center;font-weight:600;border:2px solid var(--card);border-radius:4px}.xt td.c0{color:#C8CDD4}.xt .nm{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xt tfoot td{font-weight:700;border-top:2px solid var(--line)}
+.modal{position:fixed;inset:0;background:rgba(24,33,43,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}.mbox{width:min(900px,100%);padding:18px 20px;max-height:90vh;display:flex;flex-direction:column}
 .only-img{display:none}.img-mode .only-img{display:block}
 @media (max-width:700px){.frow{grid-template-columns:minmax(120px,1fr) 60px 40px 56px}.frow.l2 .fl{padding-left:16px}.fsub{margin-left:12px}.darr{display:none}}
 .sumtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
@@ -646,7 +651,7 @@ function viewList(){
   '<div class="head"><div class="title"><h1>รายการเคส</h1><div class="desc">เคสที่ยังไม่ปิด '+open.length+' เคส · เกิน SLA '+late.length+' เคส</div></div>'+
   '<label class="f">ค้นหา<input type="search" id="l-q" value="'+esc(L.q)+'" placeholder="Tracking KEX / NIM / เลขเคส / เลขเคลม / ผู้ส่ง" style="width:320px;max-width:100%"></label>'+
   '<button type="button" class="btn primary" id="l-new" style="align-self:flex-end">+ เปิดเคสใหม่</button></div>'+
-  (L.ids?'<div class="msg note" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span>กำลังดูจาก Dashboard: <b>'+esc(L.idsLabel)+'</b> · '+rows.length+' เคส</span><button type="button" class="btn" id="l-clear" style="height:36px">← ดูรายการทั้งหมด</button><button type="button" class="btn" id="l-backdash" style="height:36px">กลับ Dashboard</button></div>':'')+
+  (L.ids?'<div class="msg note" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span>กำลังดูจาก'+(L.from==='summary'?'หน้าสรุปรายเดือน':' Dashboard')+': <b>'+esc(L.idsLabel)+'</b> · '+rows.length+' เคส</span><button type="button" class="btn" id="l-clear" style="height:36px">← ดูรายการทั้งหมด</button><button type="button" class="btn" id="l-backdash" style="height:36px">กลับ'+(L.from==='summary'?'หน้าสรุปรายเดือน':' Dashboard')+'</button></div>':'')+
   '<div class="cgroups">'+COUNT_GROUPS.map(function(g){
     return '<div class="cg"><div class="gl">'+esc(g.name)+'</div><div class="cgrow">'+g.codes.map(function(k){
       return '<button type="button" class="count" data-st="'+k+'" aria-pressed="'+(L.st===k)+'"><span class="n">'+esc(stName(k))+'</span><span class="v">'+cnt(k)+'</span></button>'; }).join('')+
@@ -986,49 +991,98 @@ function sizeRange(sz){
   return null;
 }
 function pad2(n){ return (n<10?'0':'')+n; }
-/* นับบิล NIM (ไม่ซ้ำ) + บิล KEX (= จำนวนเคส) */
-function bk(rows){ var b={}; rows.forEach(function(c){ b[String(c.nim_tracking_no||c.case_id).trim()]=1; }); return { bills:Object.keys(b).length, kex:rows.length }; }
-function sumTable(title, col, rows, total){
-  var max=Math.max.apply(null, rows.map(function(r){return r.kex;}).concat([0]));
-  var tb=rows.map(function(r){
-    var p=total.kex ? r.kex/total.kex*100 : 0, cls=r.kex===0?'zero':(r.kex===max?'top':'');
-    return '<tr class="'+cls+'"><td>'+esc(r.name)+'</td><td class="r">'+r.bills+'</td><td class="r"><b>'+r.kex+'</b></td><td style="width:34%"><div class="pbar"><i style="width:'+p.toFixed(1)+'%"></i></div></td><td class="r">'+p.toFixed(1)+'%</td></tr>';
-  }).join('');
-  return '<section class="card"><div class="pad" style="padding-bottom:8px"><h2>'+title+'</h2></div><div class="tbl-wrap"><table class="sumtbl"><thead><tr><th>'+col+'</th><th class="r">บิล NIM</th><th class="r">บิล KEX</th><th>สัดส่วน (บิล KEX)</th><th class="r">%</th></tr></thead><tbody>'+tb+
-    '</tbody><tfoot><tr><td>รวม</td><td class="r">'+total.bills+'</td><td class="r">'+total.kex+'</td><td></td><td class="r">'+(total.kex?'100%':'–')+'</td></tr></tfoot></table></div></section>';
+function rangeName(i){ return i==null ? 'ไม่ระบุ Size' : 'N'+pad2(SIZE_RANGES[i][0])+'–'+pad2(SIZE_RANGES[i][1]); }
+var isLost=function(c){ return c.incident_type==='สูญหาย' || c.incident_type==='สูญหายบางส่วน'; };
+/* แถวสรุป: { name, rows, prev, tag } → บิล · กล่อง · เสียหาย · สูญหาย · % · เทียบเดือนก่อน */
+function sRow(r, total, mx, showCmp, label){
+  var k=r.rows.length, l=r.rows.filter(isLost).length, d=k-(r.prev||0);
+  var cls=k===0?'zero':(k===mx?'top':'');
+  var cmp=!showCmp ? '–' : (d===0 ? '<span class="desc">=</span>' : '<span class="'+(d>0?'up':'dn')+'">'+(d>0?'▲ ':'▼ ')+Math.abs(d)+'</span>');
+  return '<tr class="'+cls+'"'+drillAttr(label+': '+r.name,r.rows)+'><td class="nm" title="'+esc(r.name)+'">'+esc(r.name)+(r.tag?' <span class="tagx">'+r.tag+'</span>':'')+'</td><td class="r">'+billCount(r.rows)+'</td><td class="r"><b>'+k+'</b></td><td class="r">'+(k-l)+'</td><td class="r">'+l+'</td><td class="r">'+pct(k,total)+'</td><td class="r">'+cmp+'</td></tr>';
+}
+function sTable(title, col, list, cur, showCmp, prevLabel, label, extraRow, foot){
+  var mx=Math.max.apply(null,list.map(function(r){return r.rows.length;}).concat([0]));
+  var N=cur.length, L=cur.filter(isLost).length;
+  return '<section class="card pad"><h2 style="font-size:16px;margin-bottom:8px">'+title+'</h2><div class="tbl-wrap"><table class="sumtbl fx"><colgroup><col><col style="width:44px"><col style="width:52px"><col style="width:60px"><col style="width:64px"><col style="width:56px"><col style="width:72px"></colgroup><thead><tr><th>'+col+'</th><th class="r">บิล</th><th class="r">กล่อง</th><th class="r">เสียหาย</th><th class="r">สูญหาย*</th><th class="r">%</th><th class="r">เทียบ '+esc(prevLabel)+'</th></tr></thead><tbody>'+
+    list.map(function(r){ return sRow(r,N,mx,showCmp,label); }).join('')+(extraRow||'')+
+    '</tbody><tfoot><tr><td>รวม</td><td class="r">'+billCount(cur)+'</td><td class="r">'+N+'</td><td class="r">'+(N-L)+'</td><td class="r">'+L+'</td><td class="r">'+(N?'100%':'–')+'</td><td></td></tr></tfoot></table></div>'+(foot||'')+'</section>';
+}
+/* จัดกลุ่ม: key(c) → ชื่อ · เรียงกล่องมาก → น้อย · แถว 0 ไว้ท้าย */
+function groupBy(cur, prev, keyFn, fixed){
+  var map={}, order=[];
+  var add=function(n){ if(!map[n]){ map[n]={ name:n, rows:[], prev:0 }; order.push(n); } };
+  (fixed||[]).forEach(add);
+  cur.forEach(function(c){ var n=keyFn(c); add(n); map[n].rows.push(c); });
+  prev.forEach(function(c){ var n=keyFn(c); if(map[n]) map[n].prev++; });
+  return order.map(function(n){ return map[n]; });
 }
 function viewSummary(){
-  var U=S.sum;
-  var months=uniq(S.cases.map(reportMonth)).reverse();
-  if(!U.month || months.indexOf(U.month)<0) U.month = months[0] || ym(S.boot.today);
+  DRILL={};
+  var U=S.sum, months=monthsAvailable(), first=firstMonth();
+  if(!U.month || months.indexOf(U.month)<0){ var wc=months.filter(function(m){ return S.cases.some(function(c){return reportMonth(c)===m;}); }); U.month=wc[0]||months[0]; }
   var cur=S.cases.filter(function(c){ return reportMonth(c)===U.month; });
-  var T=bk(cur);
-  var byType=function(t){ return bk(cur.filter(function(c){ return c.incident_type===t; })); };
+  var pm=addMonths(U.month,-1), prev=S.cases.filter(function(c){ return reportMonth(c)===pm; }), showCmp=pm>=first, prevLabel=mShort(pm);
+  var N=cur.length;
+  var bills=function(arr){ return billCount(arr); };
+  var byT=function(t){ return cur.filter(function(c){ return c.incident_type===t; }); };
   var tile=function(l,v,s,p,main){ return '<div class="card tile'+(main?' main':'')+'"><span class="l">'+l+'</span><span class="v">'+v+(p!=null?'<small>'+p+'</small>':'')+'</span><span class="s">'+s+'</span></div>'; };
-  var tiles=tile('บิล NIM ที่พบปัญหา',T.bills,'บิล',null,1)+tile('บิล KEX ที่พบปัญหา',T.kex,'เลข KEX (1 เลข = 1 กล่อง)',null,1)+
-    ['เสียหาย','สูญหาย','สูญหายบางส่วน'].map(function(t){ var x=byType(t); return tile(t,x.kex,'บิล KEX · '+x.bills+' บิล NIM',pct(x.kex,T.kex)); }).join('');
-  /* กลุ่มสินค้า: ทุกกลุ่มในชีต Lists (แสดง 0) + กลุ่มอื่นที่พบในข้อมูล + ไม่ระบุ */
-  var gl=(S.boot.lists.product_group||[]).slice();
-  cur.forEach(function(c){ if(c.product_group && gl.indexOf(c.product_group)<0) gl.push(c.product_group); });
-  var gRows=gl.map(function(g,i){ var x=bk(cur.filter(function(c){ return c.product_group===g; })); return { name:g, bills:x.bills, kex:x.kex, i:i }; })
-    .sort(function(a,b){ return b.kex-a.kex || b.bills-a.bills || a.i-b.i; });
-  var gNone=bk(cur.filter(function(c){ return !c.product_group; }));
-  gRows.push({ name:'ไม่ระบุกลุ่มสินค้า', bills:gNone.bills, kex:gNone.kex });
-  var sRows=SIZE_RANGES.map(function(r,i){ var x=bk(cur.filter(function(c){ return sizeRange(c.size)===i; })); return { name:'N'+pad2(r[0])+' – N'+pad2(r[1]), bills:x.bills, kex:x.kex }; });
-  var sNone=bk(cur.filter(function(c){ return sizeRange(c.size)==null; }));
-  sRows.push({ name:'ไม่ระบุ Size', bills:sNone.bills, kex:sNone.kex });
+  var tiles=tile('บิล NIM ที่พบปัญหา',bills(cur),'บิล',null,1)+tile('บิล KEX ที่พบปัญหา',N,'เลข KEX (1 เลข = 1 กล่อง)',null,1)+
+    ['เสียหาย','สูญหาย','สูญหายบางส่วน'].map(function(t){ var x=byT(t); return tile(t,x.length,'บิล KEX · '+bills(x)+' บิล NIM',pct(x.length,N)); }).join('');
+  var gl=(S.boot.lists.product_group||[]);
+  var sortRows=function(arr){ return arr.sort(function(a,b){ return b.rows.length-a.rows.length || (b.prev-a.prev); }); };
+  var groups=sortRows(groupBy(cur,prev,function(c){ return c.product_group||'ไม่ระบุกลุ่มสินค้า'; },gl));
+  groups.forEach(function(g){ if(g.name!=='ไม่ระบุกลุ่มสินค้า' && gl.indexOf(g.name)<0) g.tag='ไม่อยู่ใน list'; });
+  groups=groups.filter(function(g){ return g.name!=='ไม่ระบุกลุ่มสินค้า' || g.rows.length; });
+  var sizes=groupBy(cur,prev,function(c){ return rangeName(sizeRange(c.size)); },SIZE_RANGES.map(function(r,i){ return rangeName(i); }).concat(['ไม่ระบุ Size']));
+  /* ตารางไขว้: กลุ่มที่มีเคส × ช่วง Size */
+  var cg=groups.filter(function(g){ return g.rows.length; });
+  var cols=SIZE_RANGES.map(function(r,i){ return i; }); if(cur.some(function(c){ return sizeRange(c.size)==null; })) cols.push(null);
+  var cmax=1; cg.forEach(function(g){ cols.forEach(function(i){ var n=g.rows.filter(function(c){ return sizeRange(c.size)===i; }).length; if(n>cmax) cmax=n; }); });
+  var cross='<section class="card pad"><h2 style="font-size:16px;margin-bottom:8px">กลุ่มสินค้า × ช่วง Size <span class="desc" style="font-weight:400;font-size:13px">จำนวนกล่อง · สีเข้ม = มาก · กดช่องเพื่อดูรายการเคส</span></h2>'+
+    (cg.length?'<div class="tbl-wrap"><table class="xt"><thead><tr><th>กลุ่มสินค้า</th>'+cols.map(function(i){ return '<th class="r">'+rangeName(i).replace('ไม่ระบุ Size','ไม่ระบุ')+'</th>'; }).join('')+'<th class="r">รวม</th></tr></thead><tbody>'+
+    cg.map(function(g){ return '<tr><td class="nm" title="'+esc(g.name)+'">'+esc(g.name)+'</td>'+cols.map(function(i){ var rs=g.rows.filter(function(c){ return sizeRange(c.size)===i; }), n=rs.length;
+      if(!n) return '<td class="c0">·</td>'; var a=Math.sqrt(n/cmax);
+      return '<td class="cx" style="background:rgba(31,78,140,'+(0.12+0.88*a).toFixed(2)+');color:'+(a>0.55?'#fff':'var(--ink)')+'"'+drillAttr(g.name+' · '+rangeName(i),rs)+'>'+n+'</td>'; }).join('')+'<td class="r"><b>'+g.rows.length+'</b></td></tr>'; }).join('')+
+    '</tbody><tfoot><tr><td>รวม</td>'+cols.map(function(i){ return '<td class="r">'+cur.filter(function(c){ return sizeRange(c.size)===i; }).length+'</td>'; }).join('')+'<td class="r">'+N+'</td></tr></tfoot></table></div>':'<div class="empty">ไม่มีเคส</div>')+'</section>';
+  /* DC + ลูกค้า: 10 อันดับ + อื่น ๆ + ปุ่มดูทั้งหมด */
+  var dcs=sortRows(groupBy(cur,prev,function(c){ return c.origin_dc||'ไม่ระบุ DC'; })).filter(function(r){ return r.rows.length; });
+  var top10=function(arr){ return arr.slice(0,10); };
+  var othRow=function(arr,unit,label,colspanAfter){ var rest=arr.slice(10); if(!rest.length) return ''; var rs=[].concat.apply([],rest.map(function(r){return r.rows;})), l=rs.filter(isLost).length;
+    return '<tr class="oth"'+drillAttr(label+': อื่น ๆ',rs)+'><td>อื่น ๆ (อีก '+rest.length+' '+unit+')</td><td class="r">'+billCount(rs)+'</td><td class="r"><b>'+rs.length+'</b></td>'+(colspanAfter?colspanAfter(rs,l):'')+'</tr>'; };
+  var allBtn=function(kind,n,unit){ return n>10 ? '<button type="button" class="btn no-print s-all" data-all="'+kind+'" style="height:36px;margin-top:10px">ดูทั้งหมด ('+n+' '+unit+')</button>' : ''; };
+  var dcTbl=sTable('แยกตาม DC ต้นทาง'+(dcs.length>10?' (10 อันดับ)':''),'DC ต้นทาง',top10(dcs),cur,showCmp,prevLabel,'DC ต้นทาง',
+    othRow(dcs,'DC','DC ต้นทาง',function(rs,l){ return '<td class="r">'+(rs.length-l)+'</td><td class="r">'+l+'</td><td class="r">'+pct(rs.length,N)+'</td><td></td>'; }), allBtn('dc',dcs.length,'DC'));
+  var snd=groupBy(cur,[],function(c){ return c.sender||'ไม่ระบุผู้ส่ง'; }).filter(function(r){ return r.rows.length; }).sort(function(a,b){ return b.rows.length-a.rows.length || billCount(b.rows)-billCount(a.rows); });
+  var sndRow=function(r){ var nb=billCount(r.rows); return '<tr'+(nb>1?' class="rep"':'')+drillAttr('ผู้ส่ง: '+r.name,r.rows)+'><td class="nm2">'+esc(r.name)+(nb>1?' <span class="tagr">ซ้ำ</span>':'')+'</td><td>'+esc(r.rows[0].customer_type||'–')+'</td><td class="r">'+nb+'</td><td class="r"><b>'+r.rows.length+'</b></td><td class="r">'+pct(r.rows.length,N)+'</td></tr>'; };
+  var sndHead='<thead><tr><th>ผู้ส่ง</th><th>ประเภทลูกค้า</th><th class="r">บิล</th><th class="r">กล่อง</th><th class="r">%</th></tr></thead>';
+  var sndTbl='<section class="card pad"><h2 style="font-size:16px;margin-bottom:8px">ลูกค้า (ผู้ส่ง)'+(snd.length>10?' 10 อันดับ':'')+' <span class="desc" style="font-weight:400;font-size:13px">เรียงตามจำนวนกล่อง · ซ้ำ = มีปัญหามากกว่า 1 บิลในเดือน</span></h2><div class="tbl-wrap"><table class="sumtbl">'+sndHead+'<tbody>'+
+    top10(snd).map(sndRow).join('')+othRow(snd,'ราย','ผู้ส่ง',function(rs){ return '<td class="r">'+pct(rs.length,N)+'</td>'; }).replace('<td>อื่น ๆ','<td colspan="2">อื่น ๆ')+
+    '</tbody><tfoot><tr><td>รวม</td><td></td><td class="r">'+billCount(cur)+'</td><td class="r">'+N+'</td><td class="r">'+(N?'100%':'–')+'</td></tr></tfoot></table></div>'+allBtn('snd',snd.length,'ราย')+'</section>';
+  /* popup ดูทั้งหมด */
+  var pop='';
+  if(U.popup){
+    var isDc=U.popup==='dc', all=isDc?dcs:snd, q=(U.pq||'').trim().toLowerCase();
+    var fl=all.filter(function(r){ return !q || r.name.toLowerCase().indexOf(q)>=0; });
+    var mx=Math.max.apply(null,all.map(function(r){return r.rows.length;}).concat([0]));
+    pop='<div class="modal no-print" role="dialog" aria-modal="true" aria-label="ดูทั้งหมด"><div class="mbox card"><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><h2 style="font-size:17px;margin-right:auto">'+(isDc?'DC ต้นทางทั้งหมด':'ลูกค้า (ผู้ส่ง) ทั้งหมด')+' · '+esc(mLabel(U.month))+' · '+all.length+(isDc?' DC':' ราย')+'</h2>'+
+      '<input type="search" id="s-pq" value="'+esc(U.pq||'')+'" placeholder="ค้นหาชื่อ" style="height:38px;width:220px"><button type="button" class="btn" id="s-pclose" style="height:38px">ปิด ✕</button></div>'+
+      '<div class="tbl-wrap" style="max-height:65vh;overflow:auto;margin-top:10px"><table class="sumtbl'+(isDc?' fx"><colgroup><col><col style="width:44px"><col style="width:52px"><col style="width:60px"><col style="width:64px"><col style="width:56px"><col style="width:72px"></colgroup><thead><tr><th>DC ต้นทาง</th><th class="r">บิล</th><th class="r">กล่อง</th><th class="r">เสียหาย</th><th class="r">สูญหาย*</th><th class="r">%</th><th class="r">เทียบ '+esc(prevLabel)+'</th></tr></thead><tbody>'+fl.map(function(r){ return sRow(r,N,mx,showCmp,'DC ต้นทาง'); }).join(''):'">'+sndHead+'<tbody>'+fl.map(sndRow).join(''))+
+      (fl.length?'':'<tr><td colspan="7" class="empty">ไม่พบ</td></tr>')+'</tbody></table></div><div class="desc" style="font-size:12px;margin-top:8px">กดแถวเพื่อเปิดรายการเคส</div></div></div>';
+  }
   var miss=cur.filter(function(c){ return !c.size || !c.product_group; }).length;
   return ''+
-  '<div class="head no-print"><div class="title"><h1>สรุปรายเดือน KEX</h1><div class="desc">สินค้าเสียหาย / สูญหายจากการส่งต่อ KEX · นับตามรอบเดือนข้อมูล (เดือนที่ได้รับแจ้ง) · นับทุกเคสไม่ว่าสถานะใด</div></div>'+
-  '<label class="f">รอบเดือน<select id="s-month">'+opts((months.length?months:[U.month]).map(function(m){return {v:m,l:mLabel(m)};}),U.month)+'</select></label>'+
-  '<button type="button" class="btn primary" id="s-img">บันทึกเป็นรูป</button></div>'+
+  '<div class="head no-print"><div class="title"><h1>สรุปรายเดือน KEX</h1><div class="desc">กลุ่มสินค้า · Size · DC · ลูกค้า ที่เสียหาย / สูญหายบ่อย · นับตามรอบเดือนข้อมูล · กดแถว / ช่องเพื่อดูรายการเคส</div></div>'+
+  '<label class="f">รอบเดือน<select id="s-month">'+opts(months.map(function(m){return {v:m,l:mLabel(m)};}),U.month)+'</select></label>'+
+  '<button type="button" class="btn primary" id="s-img" style="align-self:flex-end">บันทึกเป็นรูป</button></div>'+
   (miss?'<div class="msg note no-print">'+WARN_ICON+' มี '+miss+' เคสในรอบนี้ที่ยังไม่ได้ใส่ Size หรือกลุ่มสินค้า · นับอยู่ในแถว “ไม่ระบุ”</div>':'')+
-  '<div id="sum-sheet" style="display:flex;flex-direction:column;gap:16px;background:var(--bg);padding:4px">'+
-    '<div><h2 style="font-size:22px;line-height:30px">สรุปข้อมูลสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h2><div class="desc">รอบข้อมูล '+esc(mLabel(U.month))+' · บิล KEX = จำนวนเลข KEX (กล่อง) · สัดส่วนคิดจากบิล KEX</div></div>'+
+  '<div id="sum-sheet" style="display:flex;flex-direction:column;gap:12px;background:var(--bg);padding:4px">'+
+    '<div><h2 style="font-size:22px;line-height:30px">สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h2><div class="desc">รอบข้อมูล '+esc(mLabel(U.month))+' · บิล KEX = จำนวนเลข KEX (กล่อง) · % คิดจากจำนวนกล่อง</div></div>'+
     '<div class="sumtiles">'+tiles+'</div>'+
-    (cur.length ? '<div class="sumgrid">'+sumTable('แยกตามกลุ่มสินค้า','กลุ่มสินค้า',gRows,T)+sumTable('แยกตามช่วงรหัส Size (NIM)','ช่วง Size',sRows,T)+'</div>'
+    (N ? '<div class="sumgrid">'+sTable('แยกตามกลุ่มสินค้า','กลุ่มสินค้า',groups,cur,showCmp,prevLabel,'กลุ่มสินค้า')+sTable('แยกตามช่วง Size','ช่วง Size',sizes,cur,showCmp,prevLabel,'Size')+'</div>'+
+      cross+'<div class="sumgrid">'+dcTbl+sndTbl+'</div>'+
+      '<div class="desc" style="font-size:12px">* สูญหาย = สูญหาย + สูญหายบางส่วน · เทียบ '+esc(prevLabel)+' = จำนวนกล่องเทียบเดือนก่อน'+(showCmp?'':' (ยังไม่มีเดือนก่อน)')+' · แถวสีส้ม = มากที่สุด · แถวสีเทา = 0</div>'
       : '<div class="card empty">ยังไม่มีเคสในรอบนี้</div>')+
-  '</div>';
+  '</div>'+pop;
 }
 function saveSummaryImage(){ saveImage('sum-sheet','สรุป_KEX_'+S.sum.month+'.png'); }
 function saveImage(elId, fname){
@@ -1104,13 +1158,16 @@ function bind(){
     $('d-img').onclick=function(){ saveImage('dash-sheet','KEX_Damage_Lost_'+S.dash.month+'.png'); };
     document.querySelectorAll('[data-metric]').forEach(function(b){ b.onclick=function(){ S.dash.metric=b.dataset.metric; render(); }; });
     document.querySelectorAll('.dbars [data-month]').forEach(function(b){ b.onclick=function(){ S.dash.month=b.dataset.month; render(); }; });
-    document.querySelectorAll('[data-drill]').forEach(function(el){
-      var openIt=function(e){ e.stopPropagation(); var d=DRILL[el.dataset.drill]; if(!d) return;
-        S.list={ st:'all', close:'', q:'', type:'', src:'', owner:'', lateOnly:false, ids:d.ids, idsLabel:d.label+' · '+mLabel(S.dash.month) }; go('list'); };
-      el.addEventListener('click',openIt);
-      el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openIt(e); } });
-    });
   }
+  /* กดตัวเลข / แถว → เปิดรายการเคสชุดนั้น (Dashboard · สรุปรายเดือน) */
+  document.querySelectorAll('[data-drill]').forEach(function(el){
+    var openIt=function(e){ e.stopPropagation(); var d=DRILL[el.dataset.drill]; if(!d) return;
+      var from=S.page, m=from==='summary'?S.sum.month:S.dash.month;
+      if(from==='summary') S.sum.popup=null;
+      S.list={ st:'all', close:'', q:'', type:'', src:'', owner:'', lateOnly:false, ids:d.ids, idsLabel:d.label+' · '+mLabel(m), from:from }; go('list'); };
+    el.addEventListener('click',openIt);
+    el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openIt(e); } });
+  });
   if(S.page==='list' && $('l-q')){
     $('l-q').oninput=function(e){ S.list.q=e.target.value; var pos=e.target.selectionStart; render(); var q=$('l-q'); q.focus(); q.setSelectionRange(pos,pos); };
     $('l-status').onchange=function(e){ S.list.ids=null; S.list.st=e.target.value; S.list.close=''; render(); };
@@ -1122,7 +1179,7 @@ function bind(){
     $('l-late').onclick=function(){ S.list.lateOnly=!S.list.lateOnly; render(); };
     $('l-new').onclick=function(){ go('form'); };
     if($('l-clear')) $('l-clear').onclick=function(){ S.list.ids=null; S.list.st='open'; render(); };
-    if($('l-backdash')) $('l-backdash').onclick=function(){ go('dashboard'); };
+    if($('l-backdash')) $('l-backdash').onclick=function(){ go(S.list.from==='summary'?'summary':'dashboard'); };
     document.querySelectorAll('[data-st]').forEach(function(b){ b.onclick=function(){ S.list.ids=null; S.list.st = S.list.st===b.dataset.st ? 'open' : b.dataset.st; render(); }; });
   }
   if(S.page==='form' && $('f-back')){
@@ -1152,6 +1209,10 @@ function bind(){
   if(S.page==='summary' && $('s-month')){
     $('s-month').onchange=function(e){ S.sum.month=e.target.value; render(); };
     $('s-img').onclick=saveSummaryImage;
+    document.querySelectorAll('[data-all]').forEach(function(b){ b.onclick=function(){ S.sum.popup=b.dataset.all; S.sum.pq=''; render(); var q=$('s-pq'); if(q) q.focus(); }; });
+    if($('s-pclose')) $('s-pclose').onclick=function(){ S.sum.popup=null; render(); };
+    if($('s-pq')) $('s-pq').oninput=function(e){ S.sum.pq=e.target.value; var pos=e.target.selectionStart; render(); var q=$('s-pq'); q.focus(); q.setSelectionRange(pos,pos); };
+    var md=document.querySelector('.modal'); if(md) md.addEventListener('click',function(e){ if(e.target===md){ S.sum.popup=null; render(); } });
   }
   if(S.page==='reconcile' && $('r-month')){
     $('r-month').onchange=function(e){ S.rec.month=e.target.value; render(); };
