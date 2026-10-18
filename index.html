@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<title>NIM Claim · เคส KEX</title>
+<title>NIM · KEX Claim</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
@@ -174,19 +174,19 @@ tr.oth td{color:var(--muted);font-style:italic}tr.tot td{font-weight:700;border-
 .sumtbl tfoot td{font-weight:700;border-top:2px solid var(--line);border-bottom:none}
 .missing{display:inline-flex;gap:6px;align-items:center;font-size:13px;font-weight:600;color:var(--claim-ink);background:var(--claim-soft);border:1px solid var(--claim-line);border-radius:999px;padding:2px 10px}
 .rc-g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:12px;align-items:stretch}
-.card.rc-side{box-shadow:inset 0 5px 0 var(--primary),0 1px 2px rgba(16,40,80,.05),0 4px 14px rgba(16,40,80,.06);padding-top:24px;display:flex;flex-direction:column;gap:2px}.card.card.rc-side.cu{box-shadow:inset 0 5px 0 #0F766E,0 1px 2px rgba(16,40,80,.05),0 4px 14px rgba(16,40,80,.06)}.rc-side.cu .hbar .fill{background:#0F766E}
+.card.rc-side{box-shadow:inset 0 5px 0 var(--primary),0 1px 2px rgba(16,40,80,.05),0 4px 14px rgba(16,40,80,.06);padding-top:24px;display:flex;flex-direction:column;gap:2px}.card.card.rc-side.cu{box-shadow:inset 0 5px 0 #14335E,0 1px 2px rgba(16,40,80,.05),0 4px 14px rgba(16,40,80,.06)}
 .rc-side .hbar{grid-template-columns:minmax(120px,150px) minmax(0,1fr) 104px 44px;padding:5px 0}.rc-side .hbar .n{display:block;font-size:12px;color:var(--muted)}.rc-side .hbar .p{text-align:right;color:var(--muted);font-size:13px}
 .rc-sub{border-top:1px dashed var(--line);margin-top:8px;padding-top:4px}.rc-sr{display:grid;grid-template-columns:minmax(0,1fr) 64px 110px;gap:10px;padding:6px 0;font-size:14px}.rc-sr .c{text-align:right;color:var(--muted)}.rc-sr .a{text-align:right;font-weight:700}
 .rc-sr svg{margin-right:5px;vertical-align:-2px}.rc-sr.warn,.rc-sr.warn .a{color:#9A3412}.rc-sr.mute,.rc-sr.mute .a{color:var(--muted);font-weight:400}
 .rc-note{background:var(--line2);border-radius:8px;padding:8px 12px;font-size:12.5px;margin-top:10px}
-.sh{height:12px;background:var(--line2);border-radius:4px;min-width:120px}.sh i{display:block;height:100%;background:#B45309;border-radius:4px}
+.sh{height:12px;background:var(--line2);border-radius:4px;min-width:120px}.sh i{display:block;height:100%;background:#E57B76;border-radius:4px}tr.zero td{color:#9AA3AE}tr.zero td b{font-weight:400}
 
 /* ===== NIM theme ===== */
 :root{--bg:#F3F6FA;--primary:#2C64AC;--primary-ink:#1F4A85;--primary-soft:#E1EBF7;--brand-red:#D03430;--line:#E1E6ED;--nav:#FFFFFF;--shadow:0 1px 2px rgba(16,40,80,.05),0 2px 8px rgba(16,40,80,.05)}
 body{background:var(--bg)}
 nav{flex:0 0 236px;background:#fff;color:var(--ink);border-right:1px solid var(--line);border-top:4px solid var(--brand-red);padding:20px 14px;position:sticky;top:0;height:100vh;overflow:auto}
 nav .brand{display:flex;align-items:baseline;gap:6px;font-size:22px;font-weight:700;font-style:italic;letter-spacing:.3px;padding:0 10px}
-nav .brand b{color:var(--brand-red)}nav .brand span{color:var(--primary)}
+nav .brand b{color:#2C64AC}nav .brand .bd,nav .brand .bc{color:#6B7280}nav .brand .bk{color:#F07D1A}
 nav .sub{color:var(--muted);font-size:12.5px;padding:2px 10px 18px}
 nav button{display:flex;align-items:center;gap:10px;padding:11px 12px;color:var(--ink2);font-size:15px;border-radius:10px}
 nav button svg{flex:none;color:#7C8796}
@@ -206,16 +206,12 @@ nav #synced,nav .user{color:var(--muted)!important}nav .user button{color:var(--
 .tile.warn{background:#fff;border-color:#F3C9A2;box-shadow:0 1px 2px rgba(16,40,80,.05),0 4px 14px rgba(217,105,42,.12)}
 [data-drill].tile:hover,.tile[data-drill]:hover{box-shadow:0 2px 4px rgba(16,40,80,.06),0 8px 20px rgba(44,100,172,.14);transform:translateY(-1px)}
 .tile{transition:box-shadow .15s,transform .15s}
-.card.tile.hero{border:0;color:#fff}
-.tile.hero.hb{background:linear-gradient(135deg,#2C64AC,#3F7BC8);box-shadow:0 6px 16px rgba(44,100,172,.28)}
-.tile.hero.hn{background:linear-gradient(135deg,#1F4A85,#2C64AC);box-shadow:0 6px 16px rgba(31,74,133,.28)}
-.tile.hero.hr{background:linear-gradient(135deg,#C62F2A,#E04A42);box-shadow:0 6px 16px rgba(208,52,48,.28)}
-.tile.hero.ho{background:linear-gradient(135deg,#D9692A,#EE8A45);box-shadow:0 6px 16px rgba(217,105,42,.28)}
-.tile.hero .ico{background:rgba(255,255,255,.2);color:#fff}
-.tile.hero .v{color:#fff}.tile.hero .l,.tile.hero .s{color:rgba(255,255,255,.9)}
-.tile.hero .up{color:#FFE4E1!important}.tile.hero .dn{color:#C6F6D5!important}
-.tile.hero .tagx{background:rgba(255,255,255,.22)!important;color:#fff!important}
-.tile.hero .go{color:#fff!important;text-decoration:underline}
+.card.tile.hero{box-shadow:0 1px 2px rgba(16,40,80,.04)}
+.tile.hero .ico{background:#fff}
+.tile.hero.hb{background:#EAF1FB;border-color:#CFDDF2}.tile.hero.hb .v,.tile.hero.hb .ico{color:#2C64AC}
+.tile.hero.hn{background:#E6EDF7;border-color:#C9D6EA}.tile.hero.hn .v,.tile.hero.hn .ico{color:#1F4A85}
+.tile.hero.hr{background:#FDEDEC;border-color:#F6CFCD}.tile.hero.hr .v,.tile.hero.hr .ico{color:#C62F2A}
+.tile.hero.ho{background:#FFF2E6;border-color:#F6D6B8}.tile.hero.ho .v,.tile.hero.ho .ico{color:#C25A1E}
 button.count{border-radius:14px!important;box-shadow:0 1px 2px rgba(16,40,80,.05),0 3px 10px rgba(16,40,80,.05)}
 .tile .v{color:var(--ink)}
 h1{color:#14335E}
@@ -238,7 +234,7 @@ h1{color:#14335E}
 <body>
 <div class="app">
   <nav aria-label="เมนูหลัก">
-    <div class="brand"><b>NIM</b><span>Claim</span></div>
+    <div class="brand"><b>NIM</b><span class="bd">·</span><span class="bk">KEX</span><span class="bc">Claim</span></div>
     <div class="sub">เคสเสียหาย / สูญหาย · KEX</div>
     <button type="button" data-page="dashboard"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 3h6v8H3zM11 3h6v5h-6zM11 10h6v7h-6zM3 13h6v4H3z"/></svg><span class="t">Dashboard KEX</span></button>
     <button type="button" data-page="list"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r="1"/><circle cx="3.5" cy="10" r="1"/><circle cx="3.5" cy="15" r="1"/></svg><span class="t">รายการเคส</span></button>
@@ -560,14 +556,14 @@ function viewDashboard(){
     tile('KEX ไม่ได้แจ้งเอง', self.length+' เคส', delta(self.length,pself.length,f0,isFirst)+' · '+pct(self.length,N)+' ของเคส · '+go, 'hero ho', drillAttr('KEX ไม่ได้แจ้งเอง · '+mLabel(D.month),self));
   /* กราฟรายเดือน: เริ่มเดือนแรก · ไม่เกิน 12 เดือนล่าสุด */
   var tm=[]; for(var m=months[0]; m>=first && tm.length<12; m=addMonths(m,-1)) tm.unshift(m); /* ถึงเดือนล่าสุดเสมอ · เดือนที่เลือกมีกรอบ */
-  var useRate=D.metric==='rate';
+  var useRate=D.metric==='rate', useVol=D.metric==='vol';
   var tr=tm.map(function(m){ var rs=S.cases.filter(inM(m)), v=volumeOf(m), l=byType(rs,'lost').length;
-    return { m:m, n:rs.length, d:rs.length-l, l:l, val: useRate ? (v ? rs.length/v*100 : null) : rs.length }; });
+    return { m:m, n:rs.length, d:rs.length-l, l:l, val: useVol ? (v||null) : useRate ? (v ? rs.length/v*100 : null) : rs.length }; });
   var maxV=Math.max.apply(null, tr.map(function(t){return t.val||0;}).concat([0.0001]));
   var bars=tr.map(function(t){
-    var h=t.val==null?0:Math.round(t.val/maxV*170), lab=t.val==null?'–':(useRate?t.val.toFixed(2):String(t.val));
-    var stack = useRate ? '<div style="flex:1 1 0;background:#2C64AC"></div>' : '<div style="flex:'+t.l+' 1 0;background:#D03430"></div><div style="flex:'+t.d+' 1 0;background:#2C64AC"></div>';
-    return '<button type="button" class="col'+(t.m===D.month?' cur':'')+'" data-month="'+t.m+'" title="'+esc(mLabel(t.m)+': '+t.n+' เคส'+(useRate?(t.val==null?' · ยังไม่กรอกยอดส่ง':' · '+t.val.toFixed(2)+' ต่อ 100 ชิ้น'):' · เสียหาย '+t.d+' · สูญหาย '+t.l))+'"><span class="val">'+lab+'</span><div class="stk" style="height:'+h+'px">'+(h?stack:'')+'</div><span class="xl1">'+mShort(t.m)+' '+String(Number(t.m.slice(0,4))+543).slice(2)+'</span></button>';
+    var h=t.val==null?0:Math.round(t.val/maxV*170), lab=t.val==null?'–':(useRate?t.val.toFixed(2):useVol?int(t.val):String(t.val));
+    var stack = useVol ? '<div style="flex:1 1 0;background:#93B4DE"></div>' : useRate ? '<div style="flex:1 1 0;background:#2C64AC"></div>' : '<div style="flex:'+t.l+' 1 0;background:#D03430"></div><div style="flex:'+t.d+' 1 0;background:#2C64AC"></div>';
+    return '<button type="button" class="col'+(t.m===D.month?' cur':'')+'" data-month="'+t.m+'" title="'+esc(mLabel(t.m)+': '+(useVol?(t.val==null?'ยังไม่กรอกยอดส่ง':'ส่งผ่าน KEX '+int(t.val)+' ชิ้น')+' · ':'')+t.n+' เคส'+(useRate?(t.val==null?' · ยังไม่กรอกยอดส่ง':' · '+t.val.toFixed(2)+' ต่อ 100 ชิ้น'):' · เสียหาย '+t.d+' · สูญหาย '+t.l))+'"><span class="val">'+lab+'</span><div class="stk" style="height:'+h+'px">'+(h?stack:'')+'</div><span class="xl1">'+mShort(t.m)+' '+String(Number(t.m.slice(0,4))+543).slice(2)+'</span></button>';
   }).join('');
   var split=function(a,b,la,lb,ra,rb){ return '<div class="split"><div style="flex:'+(a||0.0001)+' 1 0;background:#2C64AC"></div><div style="flex:'+(b||0.0001)+' 1 0;background:#93B4DE"></div></div><div class="legend"><span'+drillAttr(la,ra)+'><span class="sw" style="background:#2C64AC"></span>'+la+' '+a+'</span><span'+drillAttr(lb,rb)+'><span class="sw" style="background:#93B4DE"></span>'+lb+' '+b+'</span></div>'; };
   var kexN=cur.filter(function(c){return c.source!==SRC[1];});
@@ -575,9 +571,9 @@ function viewDashboard(){
   var sec1=''+
     '<div class="dsec"><span class="n">1</span><h2>เคสที่เกิดขึ้น</h2></div>'+
     '<div class="grid-tiles g4t">'+tiles1+'</div>'+
-    '<div class="dg2"><section class="card pad" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start"><div><h2 style="font-size:16px">'+(useRate?'เคสต่อ 100 ชิ้น รายเดือน':'จำนวนเคสรายเดือน')+'</h2>'+
-      (useRate?'<div class="desc" style="font-size:13px">ใช้อัตราแทนจำนวนเคส เพราะยอดส่งแต่ละเดือนไม่เท่ากัน</div>':'<div class="legend"><span><span class="sw" style="background:#2C64AC"></span>เสียหาย</span><span><span class="sw" style="background:#D03430"></span>สูญหาย / บางส่วน</span></div>')+'</div>'+
-      '<div class="seg no-print" role="group" aria-label="ตัวชี้วัด"><button type="button" data-metric="count" aria-pressed="'+(!useRate)+'">จำนวนเคส</button><button type="button" data-metric="rate" aria-pressed="'+useRate+'">ต่อ 100 ชิ้น</button></div></div>'+
+    '<div class="dg2"><section class="card pad" style="display:flex;flex-direction:column;gap:10px"><div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start"><div><h2 style="font-size:16px">'+(useVol?'จำนวนส่งผ่าน KEX รายเดือน':useRate?'เคสต่อ 100 ชิ้น รายเดือน':'จำนวนเคสรายเดือน')+'</h2>'+
+      (useVol?'<div class="desc" style="font-size:13px">จำนวนชิ้นจากชีต สรุปรายเดือน คอลัมน์ B · เดือนที่ยังไม่กรอกแสดง –</div>':useRate?'<div class="desc" style="font-size:13px">ใช้อัตราแทนจำนวนเคส เพราะยอดส่งแต่ละเดือนไม่เท่ากัน</div>':'<div class="legend"><span><span class="sw" style="background:#2C64AC"></span>เสียหาย</span><span><span class="sw" style="background:#D03430"></span>สูญหาย / บางส่วน</span></div>')+'</div>'+
+      '<div class="seg no-print" role="group" aria-label="ตัวชี้วัด"><button type="button" data-metric="count" aria-pressed="'+(!useRate&&!useVol)+'">จำนวนเคส</button><button type="button" data-metric="rate" aria-pressed="'+useRate+'">ต่อ 100 ชิ้น</button><button type="button" data-metric="vol" aria-pressed="'+useVol+'">จำนวนส่ง</button></div></div>'+
       '<div class="dbars">'+bars+'</div><div class="desc" style="font-size:12px">เริ่มนับตั้งแต่ '+esc(mLabel(first))+' (เดือนแรกที่ส่งกับ KEX) · แสดงไม่เกิน 12 เดือน · กดแท่งเพื่อเลือกเดือน</div></section>'+
     '<section class="card pad" style="display:flex;flex-direction:column;gap:8px"><h2 style="font-size:16px">สัดส่วน</h2><b style="font-size:13px;margin-top:6px">ช่องทางรับรู้เคส</b>'+split(kexN.length,self.length,'KEX แจ้ง','ลูกค้ายื่นเอง',kexN,self)+
       '<b style="font-size:13px;margin-top:12px">ประเภทลูกค้า</b>'+split(cash.length,cred.length,'เงินสด','เครดิต',cash,cred)+
@@ -596,19 +592,19 @@ function viewDashboard(){
   var sec2=''+
     '<div class="dsec"><span class="n">2</span><h2>การเคลม</h2><span class="desc">จากเคสที่เกิดในเดือนนี้ · กดแต่ละแถวเพื่อดูรายการเคส</span></div>'+
     '<section class="card pad"><div class="frow fhead"><span></span><span></span><span class="fn">เคส</span><span class="fp">% ทั้งหมด</span></div>'+
-      frow('เคสทั้งหมด',cur,N,0,'#18212B',true)+
+      frow('เคสทั้งหมด',cur,N,0,'#14335E',true)+
       frow('ลูกค้ายื่นเคลม NIM',filed,N,1,'#2C64AC',true)+
-      frow('รอพิจารณาเงื่อนไข',fC1,N,2,'#2C64AC')+
-      frow('เข้าเงื่อนไข',fEl,N,2,'#C2560C')+
+      frow('รอพิจารณาเงื่อนไข',fC1,N,2,'#93B4DE')+
+      frow('เข้าเงื่อนไข',fEl,N,2,'#1F4A85')+
       (fEl.length?'<div class="fsub">'+
         (elKex.length?'<span'+drillAttr('เคลมกับ KEX',elKex)+'>เคลมกับ KEX <b>'+elKex.length+' เคส</b></span>':'')+
         (elKN.length?' · <span'+drillAttr('ไม่เคลม KEX (NIM รับภาระ)',elKN)+'>ไม่เคลม KEX (NIM รับภาระ) <b>'+elKN.length+' เคส · '+int(sumF(elKN,function(c){return dueAmount(c)||0;}))+' บาท</b></span>':'')+
         '<br>โอนเงินลูกค้า: '+(nd.length?'<span'+drillAttr('โอนลูกค้าแล้ว',nd)+'><b>โอนแล้ว '+nd.length+' เคส · '+int(sumF(nd,'cust_paid_amount'))+' บาท</b></span>':'ยังไม่มีโอน')+(n2.length?' · <span'+drillAttr('รอโอนลูกค้า',n2)+'>รอโอน '+n2.length+' เคส</span>':'')+'</div>':'')+
-      frow('ไม่เข้าเงื่อนไข',fX6,N,2,'#6B7280')+
-      frow('ปิดแล้ว · ไม่เคลม',fOther,N,2,'#6B7280')+
+      frow('ไม่เข้าเงื่อนไข',fX6,N,2,'#C5CBD3')+
+      frow('ปิดแล้ว · ไม่เคลม',fOther,N,2,'#C5CBD3')+
       frow('ไม่ได้ยื่นเคลม',notFiled,N,1,'#9AA3AE',true)+
       frow('ยังรอลูกค้ายื่นเคลม',nfWait,N,2,'#93B4DE')+
-      frow('ปิดแล้ว · ไม่ได้ยื่นเคลม',nfClosed,N,2,'#9AA3AE')+
+      frow('ปิดแล้ว · ไม่ได้ยื่นเคลม',nfClosed,N,2,'#C5CBD3')+
       (why.length?'<div class="fsub grey">'+why.map(function(w){ return '<span'+drillAttr(w[0],w[1])+'>'+w[0]+' '+w[1].length+'</span>'; }).join(' · ')+'</div>':'')+
     '</section>';
 
@@ -650,13 +646,13 @@ function viewDashboard(){
     .sort(function(a,b){ return (b.days||0)-(a.days||0); });
   var lateIds={}; pend.forEach(function(p){ if(slaItems(p.c).some(function(i){return i.late && i.code.charAt(0)==='K';})) lateIds[p.c.case_id]=1; });
   var nLate=Object.keys(lateIds).length;
-  var pendTbl='<section class="card"><div class="pad" style="padding-bottom:12px"><h2 style="font-size:16px">เคสที่ค้างกับ KEX · ทุกเดือน · ใช้ทวงในที่ประชุม</h2><div class="desc" style="font-size:13px">ค้าง '+pend.length+' เคส · เกิน SLA '+nLate+' เคส · รอแจ้งเคลม KEX / รอผล KEX / รอเงิน KEX · เรียงตามวันตั้งแต่แจ้งเคลม</div></div>'+
-    (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>รอบเดือน</th><th>เคลมกับ KEX</th><th>วันที่แจ้งเคลม KEX</th><th class="r">ยอด (บาท)</th><th class="r">วันตั้งแต่แจ้ง</th><th>SLA</th><th class="r">ติดตามแล้ว</th></tr></thead><tbody>'+
-    pend.map(function(p){ var c=p.c, late=!!lateIds[c.case_id]; return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+'</td><td>'+esc(mLabel(reportMonth(c)))+'</td><td>'+chip(kexCode(c))+'</td><td>'+fmtD(c.claim_submit_date)+'</td><td class="r">'+money(p.k==='K3'?c.approved_amount:(num(c.claim_amount)!=null?c.claim_amount:c.goods_value))+'</td><td class="r"><b>'+(p.days==null?'–':p.days+' วัน')+'</b></td><td>'+(late?'<span class="late-flag">'+WARN_ICON+'เกิน SLA</span>':'<span class="desc" style="font-size:13px">ปกติ</span>')+'</td><td class="r">'+(c.followup_count||0)+' ครั้ง</td></tr>'; }).join('')+
+  var pendTbl='<section class="card"><div class="pad" style="padding-bottom:12px"><h2 style="font-size:16px">เคสที่ค้างกับ KEX · ทุกเดือน · ใช้ทวงในที่ประชุม</h2><div class="desc" style="font-size:13px">ค้าง '+pend.length+' เคส · เกิน SLA '+nLate+' เคส · รอแจ้งเคลม KEX / รอผล KEX / รอเงิน KEX · เรียงจากค้างนานสุด · แถวพื้นชมพู = เกิน SLA</div></div>'+
+    (pend.length ? '<div class="tbl-wrap"><table><thead><tr><th>เลขเคส</th><th>Tracking KEX</th><th>รอบเดือน</th><th>เคลมกับ KEX</th><th>วันที่แจ้งเคลม KEX</th><th class="r">ยอด (บาท)</th></tr></thead><tbody>'+
+    pend.map(function(p){ var c=p.c, late=!!lateIds[c.case_id]; return '<tr'+(late?' class="late"':'')+'><td><button type="button" class="linkbtn" data-open="'+esc(c.case_id)+'">'+esc(c.case_id)+'</button></td><td class="mono">'+esc(c.tracking_no)+'</td><td>'+esc(mLabel(reportMonth(c)))+'</td><td>'+chip(kexCode(c))+'</td><td>'+fmtD(c.claim_submit_date)+'</td><td class="r">'+money(p.k==='K3'?c.approved_amount:(num(c.claim_amount)!=null?c.claim_amount:c.goods_value))+'</td></tr>'; }).join('')+
     '</tbody></table></div>' : '<div class="empty">ไม่มีเคสค้างกับ KEX</div>')+'</section>';
 
   return ''+
-  '<div class="head"><div class="title"><h1>KEX Damage &amp; Lost</h1><div class="desc">สินค้าเสียหาย / สูญหายจากการส่งต่อ KEX · สรุปสำหรับประชุมกับ KEX · นับตามรอบเดือนข้อมูล · '+esc(mLabel(D.month))+'</div></div>'+
+  '<div class="head"><div class="title"><h1>KEX Damage &amp; Lost</h1><div class="desc">สินค้าเสียหาย / สูญหายจากการส่งต่อ KEX · นับตามรอบเดือนข้อมูล · '+esc(mLabel(D.month))+'</div></div>'+
   '<label class="f no-print">รอบเดือน<select id="d-month">'+opts(months.map(function(m){return {v:m,l:mLabel(m)};}),D.month)+'</select></label>'+
   '<button type="button" class="btn no-print" id="d-img" style="align-self:flex-end">บันทึกเป็นรูป</button>'+
   '<button type="button" class="btn primary no-print" id="d-print" style="align-self:flex-end">พิมพ์ / PDF ประชุม</button></div>'+
@@ -1202,19 +1198,19 @@ function viewReconcile(){
     ['โอนลูกค้าแล้ว (NIM)',tU,byN(cu,'ND').length+' เคส',0],['ค้างรับจาก KEX',sum(recv,recvAmt),recv.length+' เคส · อนุมัติแล้วยังไม่ได้เงิน',1],
     ['ค้างโอนลูกค้า',sum(pay,payAmt),pay.length+' เคส',1],['ส่วนต่างที่ NIM รับภาระ',sum(bur,burdenOf),bur.length+' เคส · โอนลูกค้ามากกว่าที่ได้จาก KEX',1],
     ['KEX โอนเกิน รอจัดการ',sum(overOpen,overpay),overOpen.length+' เคส · '+(over.length-overOpen.length)+' เคสจัดการแล้ว',overOpen.length?1:0]];
-  var bar=function(l,n,v,base){ var p=base?Math.round(v/base*100):0; return '<div class="hbar"><span>'+l+'<span class="n">'+n+' เคส</span></span><div class="track" style="height:18px"><div class="fill" style="height:18px;width:'+Math.min(p,100)+'%"></div></div><b style="text-align:right">'+int(v)+'</b><span class="p">'+p100(v,base)+'</span></div>'; };
+  var bar=function(l,n,v,base,col){ var p=base?Math.round(v/base*100):0; return '<div class="hbar"><span>'+l+'<span class="n">'+n+' เคส</span></span><div class="track" style="height:18px"><div class="fill" style="height:18px;width:'+Math.min(p,100)+'%;background:'+col+'"></div></div><b style="text-align:right">'+int(v)+'</b><span class="p">'+p100(v,base)+'</span></div>'; };
   var sr=function(cls,l,arr,f,keep){ if(!arr.length && !keep) return ''; return '<div class="rc-sr '+cls+'"><span>'+(cls==='warn'?WARN_ICON:'')+l+'</span><span class="c">'+arr.length+' เคส</span><span class="a">'+int(sum(arr,f))+'</span></div>'; };
   var kexCard='<section class="card pad rc-side"><h2>ฝั่ง KEX · เงินเข้า</h2><div class="desc" style="margin-bottom:8px">เฉพาะเคสที่ยื่นเคลม KEX แล้ว · ไม่รวมเคสที่ NIM ไม่เคลม KEX</div>'+
-    bar('ยอดเรียกร้อง KEX',kx.length,tC,tC)+bar('KEX อนุมัติ',cnt(kx,'approved_amount'),tA,tC)+bar('รับจริงจาก KEX',cnt(kx,'kex_paid_amount'),tP,tC)+
+    bar('ยอดเรียกร้อง KEX',kx.length,tC,tC,'#14335E')+bar('KEX อนุมัติ',cnt(kx,'approved_amount'),tA,tC,'#2C64AC')+bar('รับจริงจาก KEX',cnt(kx,'kex_paid_amount'),tP,tC,'#93B4DE')+
     '<div class="rc-sub">'+sr('warn','ค้างรับจาก KEX (อนุมัติแล้ว ยังไม่ได้เงิน)',recv,recvAmt,1)+sr('','รอผล KEX',k2,'claim_amount')+sr('','KEX ปฏิเสธ',kxr,'claim_amount')+
     sr('warn','KEX โอนเกิน รอจัดการ',overOpen,overpay)+sr('mute','ยังไม่ได้ยื่น KEX (ไม่นับในยอดเรียกร้อง)',k1,dueAmount)+'</div></section>';
   var cuCard='<section class="card pad rc-side cu"><h2>ฝั่งลูกค้า · เงินออก</h2><div class="desc" style="margin-bottom:8px">ทุกเคสที่ลูกค้าเรียกร้อง · รวมเคสที่ NIM ไม่เคลม KEX</div>'+
-    bar('ยอดลูกค้าเรียกร้อง',cu.length,tD,tD)+bar('โอนลูกค้าแล้ว',byN(cu,'ND').length,tU,tD)+
+    bar('ยอดลูกค้าเรียกร้อง',cu.length,tD,tD,'#1F4A85')+bar('โอนลูกค้าแล้ว',byN(cu,'ND').length,tU,tD,'#93B4DE')+
     '<div class="rc-sub">'+sr('warn','ค้างโอนลูกค้า',pay,payAmt,1)+sr('','ไม่จ่ายลูกค้า',byN(rows,'NX'),dueAmount)+'</div>'+
     '<div class="rc-note">ยอดโอนลูกค้า = ยอดเรียกร้องของลูกค้า · โอนได้เลยไม่ต้องรอ KEX</div></section>';
   var whys=['NIM ไม่เคลม KEX (รับภาระเอง)','KEX ปฏิเสธ','KEX จ่ายน้อยกว่าที่โอนลูกค้า'], tB=sum(bur,burdenOf);
   var burRows=whys.map(function(w){ var a=bur.filter(function(c){return burdenWhy(c)===w;}), v=sum(a,burdenOf), p=tB?Math.round(v/tB*100):0;
-    return '<tr><td><b>'+w+'</b></td><td class="r">'+a.length+'</td><td class="r">'+int(v)+'</td><td class="r">'+(tB?p+'%':'–')+'</td><td><div class="sh"><i style="width:'+p+'%"></i></div></td></tr>'; }).join('');
+    return '<tr'+(a.length?'':' class="zero"')+'><td><b>'+w+'</b></td><td class="r">'+a.length+'</td><td class="r">'+int(v)+'</td><td class="r">'+(tB?p+'%':'–')+'</td><td><div class="sh"><i style="width:'+p+'%"></i></div></td></tr>'; }).join('');
   var burCard='<section class="card pad"><h2>ส่วนต่างที่ NIM รับภาระ · แยกตามสาเหตุ</h2><div class="desc" style="margin-bottom:8px">นับเฉพาะเคสที่โอนลูกค้าแล้วและจบฝั่ง KEX แล้ว · ภาระ = โอนลูกค้า − รับจริงจาก KEX</div>'+
     '<div class="tbl-wrap"><table style="min-width:560px"><thead><tr><th>สาเหตุ</th><th class="r">เคส</th><th class="r">ยอด (บาท)</th><th class="r">%</th><th style="width:30%"></th></tr></thead><tbody>'+burRows+'</tbody>'+
     '<tfoot><tr><td><b>รวม</b></td><td class="r"><b>'+bur.length+'</b></td><td class="r"><b>'+int(tB)+'</b></td><td class="r"><b>'+(tB?'100%':'–')+'</b></td><td></td></tr></tfoot></table></div></section>';
@@ -1319,7 +1315,7 @@ function showLogin(note){
   S.boot=null;
   var m=document.getElementById('main');
   m.innerHTML='<div class="card pad" style="max-width:440px;width:100%;margin:8vh auto 0;display:flex;flex-direction:column;gap:16px">'+
-    '<div><div style="font-size:20px;font-weight:700">NIM Claim · เคส KEX</div><div class="desc">เข้าสู่ระบบด้วยรหัสผ่านทีม</div></div>'+
+    '<div><div style="font-size:22px;font-weight:700;font-style:italic"><span style="color:#2C64AC">NIM</span> <span style="color:#6B7280">·</span> <span style="color:#F07D1A">KEX</span> <span style="color:#6B7280">Claim</span></div><div class="desc">เข้าสู่ระบบด้วยรหัสผ่านทีม</div></div>'+
     (note?'<div class="msg note">'+esc(note)+'</div>':'')+
     '<label class="f" for="lg-pass"><span class="lab">รหัสผ่านทีม</span><input type="password" id="lg-pass" autocomplete="current-password"></label>'+
     '<button type="button" class="btn primary" id="lg-go" style="justify-content:center">ถัดไป</button>'+
