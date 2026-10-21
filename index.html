@@ -257,7 +257,7 @@ h1{color:#14335E}
 var API_URL = 'https://script.google.com/macros/s/AKfycbysidAobNhvSIdrAdhOPGV1YMCrupAxJOzglVJyLYLZJGOv20Q4fdYngtSxB9rqBmWiRA/exec';
 var S = {
   boot: null, cases: [], page: 'dashboard',
-  list: { st: 'open', close: '', q: '', type: '', src: '', owner: '', lateOnly: false },
+  list: { st: 'open', close: '', q: '', type: '', src: '', owner: '', lateOnly: false, month: '' },
   dash: { month: null, metric: 'count' },
   rec: { month: 'all', tab: 'receive', msg: null },
   sum: { month: null },
@@ -682,6 +682,15 @@ function matchSt(c, cd){
   if(f==='N') return code(c.nim_track)===cd;
   return code(c.status)===cd;
 }
+var LISTX=[];
+function listFilterText(){ var L=S.list, t=[];
+  if(L.ids) t.push(L.idsLabel);
+  else { t.push({open:'ยังไม่ปิด',C2:'กำลังเคลม',closed:'ปิดแล้ว',all:'ทุกสถานะ'}[L.st]||('งาน: '+stName(L.st))); if(L.close) t.push(CLOSE[L.close]); if(L.src) t.push(L.src); if(L.type) t.push(L.type); if(L.owner) t.push('ผู้รับผิดชอบ '+L.owner); if(L.lateOnly) t.push('เฉพาะเกิน SLA'); }
+  if(L.month) t.push('รอบ '+mLabel(L.month)); if(L.q) t.push('ค้นหา "'+L.q+'"'); return t.join(' · '); }
+function exportList(){
+  var rows=LISTX, f=listFilterText();
+  exportXlsx('รายการเคส_KEX_'+S.boot.today+'.xlsx',[{name:'รายการเคส',title:'รายการเคส KEX · '+rows.length+' เคส',sub:'ตัวกรอง: '+f+' · ข้อมูล ณ '+stamp(),head:CASE_COLS.map(function(k){return k[0];}),rows:caseRows(rows)}]);
+}
 function viewList(){
   var L=S.list, cs=S.cases;
   var open=cs.filter(function(c){return !closed(c.status);});
@@ -696,6 +705,7 @@ function viewList(){
     if(L.type && c.incident_type!==L.type) return false;
     if(L.src && c.source!==L.src) return false;
     if(L.owner && c.owner!==L.owner) return false;
+    if(L.month && reportMonth(c)!==L.month) return false;
     if(L.lateOnly && (closed(c.status) || !isLate(c))) return false;
     if(q && [c.case_id,c.tracking_no,c.nim_tracking_no,c.nim_claim_no,c.kex_claim_no,c.sender].join(' ').toLowerCase().indexOf(q)<0) return false;
     return true;
@@ -707,12 +717,12 @@ function viewList(){
   /* ตัวกรองสถานะ: 4 ตัวเลือก · งานค้างแต่ละแบบกดจากช่อง "งานที่ต้องทำ" */
   var stOpts=[{v:'open',l:'ยังไม่ปิด'},{v:'C2',l:'กำลังเคลม'},{v:'closed',l:'ปิดแล้ว'},{v:'all',l:'ทั้งหมด'}];
   if(['open','C2','closed','all'].indexOf(L.st)<0) stOpts.push({v:L.st,l:'งานที่ต้องทำ · '+stName(L.st)});
-  var shown=rows.slice(0,300);
+  var shown=rows.slice(0,300); LISTX=rows;
   var tc=function(k){ return /7C2D12/.test(tone(k))?'#7C2D12':/374151/.test(tone(k))?'#374151':'#1F4A85'; };
   return ''+
   '<div class="head"><div class="title"><h1>รายการเคส</h1><div class="desc">เคสที่ยังไม่ปิด '+open.length+' เคส · เกิน SLA '+late.length+' เคส</div></div>'+
   '<label class="f">ค้นหา<input type="search" id="l-q" value="'+esc(L.q)+'" placeholder="Tracking KEX / NIM / เลขเคส / เลขเคลม / ผู้ส่ง" style="width:320px;max-width:100%"></label>'+
-  '<button type="button" class="btn primary" id="l-new" style="align-self:flex-end">+ เปิดเคสใหม่</button></div>'+
+  '<button type="button" class="btn" id="l-xlsx" style="align-self:flex-end">ดาวน์โหลด Excel</button><button type="button" class="btn primary" id="l-new" style="align-self:flex-end">+ เปิดเคสใหม่</button></div>'+
   (L.ids?'<div class="msg note" style="display:flex;flex-wrap:wrap;gap:12px;align-items:center"><span>กำลังดูจาก'+(L.from==='summary'?'หน้าสรุปรายเดือน':' Dashboard')+': <b>'+esc(L.idsLabel)+'</b> · '+rows.length+' เคส</span><button type="button" class="btn" id="l-clear" style="height:36px">← ดูรายการทั้งหมด</button><button type="button" class="btn" id="l-backdash" style="height:36px">กลับ'+(L.from==='summary'?'หน้าสรุปรายเดือน':' Dashboard')+'</button></div>':'')+
   '<div class="cgroups">'+COUNT_GROUPS.map(function(g){
     return '<div class="cg"><div class="gl">'+esc(g.name)+'</div><div class="cgrow">'+g.codes.map(function(k){
@@ -724,6 +734,7 @@ function viewList(){
   '<label class="f">ช่องทาง<select id="l-src">'+opts(SRC.map(function(s){return {v:s,l:s};}),L.src,'ทั้งหมด')+'</select></label>'+
   '<label class="f">ประเภทเหตุ<select id="l-type">'+opts(S.boot.lists.incident_type||[],L.type,'ทั้งหมด')+'</select></label>'+
   '<label class="f">ผู้รับผิดชอบ<select id="l-owner">'+opts(uniq(cs.map(function(c){return c.owner;})),L.owner,'ทั้งหมด')+'</select></label>'+
+  '<label class="f">รอบเดือน<select id="l-month">'+opts(monthsAvailable().map(function(m){return {v:m,l:mLabel(m)};}),L.month||'','ทุกเดือน')+'</select></label>'+
   '<label class="check"><input type="checkbox" id="l-lateonly"'+(L.lateOnly?' checked':'')+'>เฉพาะเกิน SLA</label>'+
   '</div>'+
   '<div class="card tbl-wrap">'+(shown.length?'<table style="min-width:1000px"><thead><tr><th>เลขเคส</th><th>Tracking · ช่องทาง</th><th>ผู้ส่ง · ผู้รับผิดชอบ</th><th>ขั้นตอนเคส</th><th>เคลมกับ KEX</th><th>โอนเงินลูกค้า</th><th>วันค้าง · SLA</th><th class="r">ยอดเรียกร้อง</th></tr></thead><tbody>'+
@@ -1078,6 +1089,29 @@ function groupBy(cur, prev, keyFn, fixed){
   prev.forEach(function(c){ var n=keyFn(c); if(map[n]) map[n].prev++; });
   return order.map(function(n){ return map[n]; });
 }
+var SUMX=null;
+function exportSummary(){
+  var X=SUMX; if(!X) return; var cur=X.cur, N=cur.length, M=mLabel(X.month)+(X.openM?' (ยังไม่จบเดือน)':'');
+  var lostN=function(rs){ return rs.filter(isLost).length; };
+  var gHead=function(l){ return [l,'บิล NIM','กล่อง (บิล KEX)','เสียหาย','สูญหาย*','% ของกล่อง'].concat(X.showCmp?['เดือน '+X.prevLabel,'เพิ่ม/ลด']:[]); };
+  var gRow=function(g){ var l=lostN(g.rows); return [g.name,billCount(g.rows),g.rows.length,g.rows.length-l,l,pctN(g.rows.length,N)].concat(X.showCmp?[g.prev,g.rows.length-g.prev]:[]); };
+  var foot=function(){ var l=lostN(cur); return ['รวม',billCount(cur),N,N-l,l,N?100:''].concat(X.showCmp?['','']:[]); };
+  var sub='รอบข้อมูล '+M+' · ข้อมูล ณ '+stamp()+' · * สูญหาย = สูญหาย + สูญหายบางส่วน · % คิดจากจำนวนกล่อง';
+  var tiles=[['บิล NIM ที่พบปัญหา',billCount(cur),''],['บิล KEX ที่พบปัญหา (กล่อง)',N,'']].concat(['เสียหาย','สูญหาย','สูญหายบางส่วน'].map(function(t){ var x=cur.filter(function(c){return c.incident_type===t;}); return [t,x.length,pctN(x.length,N)]; }));
+  var colName=function(i){ return rangeName(i).replace('ไม่ระบุ Size','ไม่ระบุ'); };
+  exportXlsx('สรุปรายเดือน_KEX_'+X.month+'.xlsx',[
+    {name:'ภาพรวม',title:'สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX',sub:sub,head:['รายการ','จำนวน','% ของกล่อง'],rows:tiles},
+    {name:'กลุ่มสินค้า',title:'แยกตามกลุ่มสินค้า · '+M,head:gHead('กลุ่มสินค้า'),rows:X.groups.map(gRow),foot:foot()},
+    {name:'ช่วง Size',title:'แยกตามช่วง Size · '+M,head:gHead('ช่วง Size'),rows:X.sizes.map(gRow),foot:foot()},
+    {name:'กลุ่มสินค้า x Size',title:'กลุ่มสินค้า × ช่วง Size (จำนวนกล่อง) · '+M,head:['กลุ่มสินค้า'].concat(X.cols.map(colName)).concat(['รวม']),
+      rows:X.cg.map(function(g){ return [g.name].concat(X.cols.map(function(i){ return g.rows.filter(function(c){ return sizeRange(c.size)===i; }).length; })).concat([g.rows.length]); }),
+      foot:['รวม'].concat(X.cols.map(function(i){ return cur.filter(function(c){ return sizeRange(c.size)===i; }).length; })).concat([N])},
+    {name:'DC ต้นทาง',title:'แยกตาม DC ต้นทาง (ทั้งหมด) · '+M,head:gHead('DC ต้นทาง'),rows:X.dcs.map(gRow),foot:foot()},
+    {name:'ลูกค้า (ผู้ส่ง)',title:'ลูกค้า (ผู้ส่ง) ทั้งหมด · '+M+' · ซ้ำ = มีปัญหามากกว่า 1 บิลในเดือน',head:['ผู้ส่ง','ประเภทลูกค้า','บิล NIM','กล่อง','% ของกล่อง','ซ้ำ'],
+      rows:X.snd.map(function(r){ var nb=billCount(r.rows); return [r.name,r.rows[0].customer_type||'',nb,r.rows.length,pctN(r.rows.length,N),nb>1?'ซ้ำ':'']; }),foot:['รวม','',billCount(cur),N,N?100:'','']},
+    {name:'รายการเคส',title:'รายการเคส · '+M+' · '+N+' เคส',head:CASE_COLS.map(function(k){return k[0];}),rows:caseRows(cur)}
+  ]);
+}
 function viewSummary(){
   DRILL={};
   var U=S.sum, months=monthsAvailable(), first=firstMonth();
@@ -1133,10 +1167,11 @@ function viewSummary(){
       (fl.length?'':'<tr><td colspan="7" class="empty">ไม่พบ</td></tr>')+'</tbody></table></div><div class="desc" style="font-size:12px;margin-top:8px">กดแถวเพื่อเปิดรายการเคส</div></div></div>';
   }
   var miss=cur.filter(function(c){ return !c.size || !c.product_group; }).length;
+  SUMX={ month:U.month, cur:cur, groups:groups, sizes:sizes, cg:cg, cols:cols, dcs:dcs, snd:snd, showCmp:showCmp, prevLabel:prevLabel, openM:openM };
   return ''+
   '<div class="head no-print"><div class="title"><h1>สรุปรายเดือน KEX</h1><div class="desc">กลุ่มสินค้า · Size · DC · ลูกค้า ที่เสียหาย / สูญหายบ่อย · นับตามรอบเดือนข้อมูล · กดแถว / ช่องเพื่อดูรายการเคส</div></div>'+
   '<label class="f">รอบเดือน<select id="s-month">'+opts(months.map(function(m){return {v:m,l:mLabel(m)};}),U.month)+'</select></label>'+
-  '<button type="button" class="btn primary" id="s-img" style="align-self:flex-end">บันทึกเป็นรูป</button></div>'+
+  '<button type="button" class="btn" id="s-xlsx" style="align-self:flex-end">ดาวน์โหลด Excel</button><button type="button" class="btn primary" id="s-img" style="align-self:flex-end">บันทึกเป็นรูป</button></div>'+
   (miss?'<div class="msg note no-print">'+WARN_ICON+' มี '+miss+' เคสในรอบนี้ที่ยังไม่ได้ใส่ Size หรือกลุ่มสินค้า · นับอยู่ในแถว “ไม่ระบุ”</div>':'')+
   '<div id="sum-sheet" style="display:flex;flex-direction:column;gap:12px;background:var(--bg);padding:4px">'+
     '<div><h2 style="font-size:22px;line-height:30px">สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h2><div class="desc">รอบข้อมูล '+esc(mLabel(U.month))+(openM?' (ยังไม่จบเดือน)':'')+' · บิล KEX = จำนวนเลข KEX (กล่อง) · % คิดจากจำนวนกล่อง</div></div>'+
@@ -1222,6 +1257,47 @@ function copyText(t){
   fallback();
   function fallback(){ var ta=document.getElementById('r-msgtext'); if(ta){ ta.focus(); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){ toast('กดค้างที่ข้อความแล้วเลือกคัดลอก'); } } }
 }
+/* ===== Export Excel (SheetJS โหลดเมื่อกดครั้งแรก) ===== */
+function loadXlsx(cb){
+  if(window.XLSX) return cb();
+  toast('กำลังเตรียมไฟล์ Excel…');
+  var sc=document.createElement('script'); sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  sc.onload=cb; sc.onerror=function(){ toast('โหลดตัวสร้าง Excel ไม่ได้ ตรวจอินเทอร์เน็ตแล้วลองใหม่'); };
+  document.head.appendChild(sc);
+}
+/* sheets: [{name, title, head:[...], rows:[[...]], foot:[...], widths:[...]}] */
+function exportXlsx(fname, sheets){
+  loadXlsx(function(){
+    var wb=XLSX.utils.book_new();
+    sheets.forEach(function(sh){
+      var aoa=[]; if(sh.title) aoa.push([sh.title]);
+      if(sh.sub) aoa.push([sh.sub]);
+      if(sh.title||sh.sub) aoa.push([]);
+      if(sh.head) aoa.push(sh.head);
+      (sh.rows||[]).forEach(function(r){ aoa.push(r.map(function(v){ return v==null?'':v; })); });
+      if(sh.foot) aoa.push(sh.foot);
+      var ws=XLSX.utils.aoa_to_sheet(aoa);
+      var w=sh.widths || (sh.head||[]).map(function(h,i){ var m=String(h).length; (sh.rows||[]).slice(0,200).forEach(function(r){ var l=String(r[i]==null?'':r[i]).length; if(l>m) m=l; }); return Math.min(48,Math.max(8,m+2)); });
+      ws['!cols']=w.map(function(x){ return {wch:x}; });
+      Object.keys(ws).forEach(function(k){ if(k[0]!=='!' && typeof ws[k].v==='number' && !Number.isInteger(ws[k].v)) ws[k].z='#,##0.00'; });
+      XLSX.utils.book_append_sheet(wb, ws, String(sh.name).replace(/[\\\/\?\*\[\]:]/g,'-').slice(0,31));
+    });
+    XLSX.writeFile(wb, fname);
+    toast('ดาวน์โหลด '+fname+' แล้ว');
+  });
+}
+function nOr(v){ var n=num(v); return n==null?'':n; }
+function pctN(a,b){ return b ? Math.round(a/b*1000)/10 : ''; }
+function stTxt(v){ return String(v||'').trim(); }
+var CASE_COLS=[['เลขเคส','case_id'],['รอบเดือนข้อมูล',function(c){return reportMonth(c)||'';}],['Tracking KEX','tracking_no'],['เลขบิล NIM','nim_tracking_no'],['ช่องทาง','source'],['ประเภทเหตุ','incident_type'],
+  ['สถานะเคส',function(c){return stTxt(c.status);}],['เคลมกับ KEX',function(c){return stTxt(c.kex_track);}],['โอนเงินลูกค้า',function(c){return stTxt(c.nim_track);}],
+  ['วันที่ KEX แจ้ง','kex_notice_date'],['DC ต้นทาง','origin_dc'],['ผู้ส่ง','sender'],['ประเภทลูกค้า','customer_type'],['รายละเอียดสินค้า','product_desc'],['กลุ่มสินค้า','product_group'],['Size','size'],
+  ['มูลค่าสินค้า',function(c){return nOr(c.goods_value);}],['วันที่แจ้งเคลม KEX','claim_submit_date'],['ยอดเรียกร้อง',function(c){return nOr(c.claim_amount);}],['ยอดอนุมัติ',function(c){return nOr(c.approved_amount);}],
+  ['รับจริงจาก KEX',function(c){return nOr(c.kex_paid_amount);}],['วันที่รับเงิน KEX','kex_paid_date'],['โอนลูกค้า',function(c){return nOr(c.cust_paid_amount);}],['วันที่โอนลูกค้า','cust_paid_date'],
+  ['ผู้รับผิดชอบ','owner'],['ติดตามล่าสุด','last_followup']];
+function caseRows(arr, cols){ cols=cols||CASE_COLS; return arr.map(function(c){ return cols.map(function(k){ var f=k[1]; return typeof f==='function'?f(c):(c[f]==null?'':c[f]); }); }); }
+function stamp(){ return thD(S.boot.today); }
+var RECX=null;
 function viewReconcile(){
   var R=S.rec;
   var claimed=S.cases.filter(function(c){ return c.kex_track || c.nim_track || num(c.claim_amount)!=null; });
@@ -1271,6 +1347,33 @@ function viewReconcile(){
   var mKeys=Object.keys(byM).sort().reverse();
   var mRows=mKeys.map(function(m){ return mLine(byM[m],mLabel(m)); }).join('');
   var mFoot=mKeys.length>1?'<tfoot>'+mLine(claimed,'รวม',1)+'</tfoot>':'';
+  RECX=function(){
+    var M=R.month==='all'?'ทุกเดือน':mLabel(R.month);
+    var ml=[['เลขเคส','case_id'],['รอบเดือน',function(c){return reportMonth(c)||'';}],['Tracking KEX','tracking_no'],['ผู้ส่ง','sender'],['เคลมกับ KEX',function(c){return stTxt(c.kex_track);}],['โอนเงินลูกค้า',function(c){return stTxt(c.nim_track);}],['ผล KEX','kex_decision'],
+      ['ยอดเรียกร้อง',function(c){return nOr(c.claim_amount);}],['ยอดอนุมัติ',function(c){return nOr(c.approved_amount);}],['รับจริง KEX',function(c){return nOr(c.kex_paid_amount);}],['โอนลูกค้า',function(c){return nOr(c.cust_paid_amount);}],
+      ['วันที่แจ้งเคลม KEX','claim_submit_date'],['วันที่รับเงิน KEX','kex_paid_date'],['วันที่โอนลูกค้า','cust_paid_date']];
+    var tabSheet=function(name,arr,extra){ var cols=ml.concat(extra||[]); return {name:name,title:name+' · '+M+' · '+arr.length+' เคส',head:cols.map(function(k){return k[0];}),rows:caseRows(arr,cols),
+      foot:arr.length?(function(){ var rr=caseRows(arr,cols); return cols.map(function(k,i){ if(i===0) return 'รวม'; var v=rr.map(function(r){return r[i];}); return v.some(function(x){return typeof x==='number';}) && v.every(function(x){return x===''||typeof x==='number';}) ? v.reduce(function(s2,x){return s2+(x||0);},0) : ''; }); })():null}; };
+    var lines=[['ยอดเงินหลัก','',''],].concat(tiles.map(function(t){ return [t[0],t[1],t[2]]; }));
+    lines.push(['','',''],['ฝั่ง KEX · เงินเข้า (เฉพาะเคสที่ยื่น KEX แล้ว)','',''],['ยอดเรียกร้อง KEX',tC,kx.length+' เคส'],['KEX อนุมัติ',tA,cnt(kx,'approved_amount')+' เคส'],['รับจริงจาก KEX',tP,cnt(kx,'kex_paid_amount')+' เคส'],
+      ['ค้างรับจาก KEX',sum(recv,recvAmt),recv.length+' เคส'],['รอผล KEX',sum(k2,'claim_amount'),k2.length+' เคส'],['KEX ปฏิเสธ',sum(kxr,'claim_amount'),kxr.length+' เคส'],['KEX โอนเกิน รอจัดการ',sum(overOpen,overpay),overOpen.length+' เคส'],['ยังไม่ได้ยื่น KEX (ไม่นับในยอดเรียกร้อง)',sum(k1,dueAmount),k1.length+' เคส'],
+      ['','',''],['ฝั่งลูกค้า · เงินออก','',''],['ยอดลูกค้าเรียกร้อง',tD,cu.length+' เคส'],['โอนลูกค้าแล้ว',tU,byN(cu,'ND').length+' เคส'],['ค้างโอนลูกค้า',sum(pay,payAmt),pay.length+' เคส'],['ไม่จ่ายลูกค้า',sum(byN(rows,'NX'),dueAmount),byN(rows,'NX').length+' เคส'],
+      ['','',''],['ส่วนต่างที่ NIM รับภาระ · แยกตามสาเหตุ','','']);
+    whys.forEach(function(w){ var a=bur.filter(function(c){return burdenWhy(c)===w;}); lines.push([w,sum(a,burdenOf),a.length+' เคส']); });
+    lines.push(['รวม NIM รับภาระ',tB,bur.length+' เคส']);
+    var mHead=['เดือน','ยื่น KEX (เคส)','เรียกร้อง KEX','อนุมัติ','รับจริง KEX','ลูกค้าเรียกร้อง','โอนลูกค้าแล้ว','NIM รับภาระ','อัตราได้รับชดเชย (%)'];
+    var mData=function(a,label){ var k=a.filter(kexSubmitted), u=a.filter(function(c){ return CUST_TR.indexOf(code(c.nim_track))>=0; }), pr=k.filter(function(c){return num(c.kex_paid_amount)!=null;});
+      return [label,k.length,sum(k,'claim_amount'),sum(k,'approved_amount'),sum(k,'kex_paid_amount'),sum(u,dueAmount),sum(byN(u,'ND'),'cust_paid_amount'),sum(a,burdenOf),pctN(sum(pr,kexPaidCapped),sum(pr,'claim_amount'))]; };
+    exportXlsx('กระทบยอด_KEX_'+(R.month==='all'?'ทุกเดือน':R.month)+'_'+S.boot.today+'.xlsx',[
+      {name:'สรุป',title:'กระทบยอดเงิน KEX · '+M,sub:'ข้อมูล ณ '+stamp()+' · ตัดรอบตามรอบเดือนข้อมูล · ยอดเป็นบาท',head:['รายการ','ยอด (บาท)','หมายเหตุ'],rows:lines,widths:[44,16,40]},
+      tabSheet('ค้างรับจาก KEX',recv,[['ค้างรับ',function(c){return recvAmt(c);}]]),
+      tabSheet('ค้างโอนลูกค้า',pay,[['ค้างโอน',function(c){return payAmt(c);}]]),
+      tabSheet('NIM รับภาระ',bur,[['สาเหตุ',burdenWhy],['NIM รับภาระ',function(c){return burdenOf(c);}]]),
+      tabSheet('KEX โอนเกิน',over,[['โอนเกิน',function(c){return overpay(c);}],['การจัดการ',function(c){return c.overpay_action||'รอจัดการ';}],['วันที่จัดการ','overpay_date'],['หมายเหตุ','overpay_note']]),
+      tabSheet('ทุกเคสเคลม',rows),
+      {name:'สรุปรายเดือน',title:'สรุปรายเดือน · คอลัมน์ฝั่ง KEX นับเฉพาะเคสที่ยื่น KEX แล้ว',head:mHead,rows:mKeys.map(function(m){ return mData(byM[m],mLabel(m)); }),foot:mData(claimed,'รวม')}
+    ]);
+  };
   var msgModal='';
   if(R.msg){ var mm=R.msg; msgModal='<div class="modal no-print" id="r-modal" role="dialog" aria-modal="true" aria-label="ข้อความสรุป"><div class="mbox card" style="width:min(640px,100%);gap:12px"><div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap"><h2 style="font-size:17px;margin-right:auto">ข้อความสรุปเคลม KEX</h2><label class="f">สรุปข้อมูล<select id="r-msgm">'+opts([{v:'all',l:'ทุกเดือนรวมกัน'}].concat(months.map(function(m){return {v:m,l:'เฉพาะ '+mLabel(m)};})),mm)+'</select></label></div>'+
     '<textarea id="r-msgtext" readonly style="min-height:340px;font-size:14px;line-height:1.6">'+esc(summaryText(mm))+'</textarea>'+
@@ -1278,7 +1381,7 @@ function viewReconcile(){
   var tab=function(id,l,n){return '<button type="button" role="tab" data-tab="'+id+'" aria-selected="'+(R.tab===id)+'">'+l+(n!=null?' · '+n:'')+'</button>';};
   return ''+
   '<div class="head"><div class="title"><h1>กระทบยอดเงิน</h1><div class="desc">ฝั่ง KEX: ยื่นเคลม → อนุมัติ → รับเงิน · ฝั่งลูกค้า: โอนเท่ายอดเรียกร้อง ไม่ต้องรอ KEX · ตัดรอบตามรอบเดือนข้อมูล</div></div>'+
-  '<label class="f">รอบเดือนข้อมูล<select id="r-month">'+opts([{v:'all',l:'ทุกเดือน'}].concat(months.map(function(m){return {v:m,l:mLabel(m)};})),R.month)+'</select></label><button type="button" class="btn primary" id="r-msg" style="align-self:flex-end">คัดลอกข้อความสรุป</button></div>'+msgModal+
+  '<label class="f">รอบเดือนข้อมูล<select id="r-month">'+opts([{v:'all',l:'ทุกเดือน'}].concat(months.map(function(m){return {v:m,l:mLabel(m)};})),R.month)+'</select></label><button type="button" class="btn" id="r-xlsx" style="align-self:flex-end">ดาวน์โหลด Excel</button><button type="button" class="btn primary" id="r-msg" style="align-self:flex-end">คัดลอกข้อความสรุป</button></div>'+msgModal+
   '<div class="grid-tiles">'+tiles.map(function(t){return '<div class="card tile'+(t[3]?' warn':'')+'">'+tIco(t[0],t[3]?'warn':'')+'<span class="l">'+t[0]+'</span><span class="v">'+int(t[1])+'</span><span class="s">บาท · '+esc(t[2])+'</span></div>';}).join('')+'</div>'+
   '<div class="rc-g2">'+kexCard+cuCard+'</div>'+burCard+
   '<section class="card"><div class="tabs" role="tablist">'+tab('receive','ค้างรับจาก KEX',recv.length)+tab('pay','ค้างโอนลูกค้า',pay.length)+tab('burden','NIM รับภาระ',bur.length)+tab('over','KEX โอนเกิน',overOpen.length)+tab('all','ทุกเคสเคลม',null)+'</div>'+
@@ -1315,6 +1418,8 @@ function bind(){
     $('l-src').onchange=function(e){ S.list.src=e.target.value; render(); };
     $('l-type').onchange=function(e){ S.list.type=e.target.value; render(); };
     $('l-owner').onchange=function(e){ S.list.owner=e.target.value; render(); };
+    $('l-month').onchange=function(e){ S.list.month=e.target.value; render(); };
+    $('l-xlsx').onclick=exportList;
     $('l-lateonly').onchange=function(e){ S.list.lateOnly=e.target.checked; render(); };
     $('l-late').onclick=function(){ S.list.lateOnly=!S.list.lateOnly; render(); };
     $('l-new').onclick=function(){ go('form'); };
@@ -1350,6 +1455,7 @@ function bind(){
     $('s-month').onchange=function(e){ S.sum.month=e.target.value; render(); };
     $('s-img').onclick=saveSummaryImage;
     document.querySelectorAll('[data-all]').forEach(function(b){ b.onclick=function(){ S.sum.popup=b.dataset.all; S.sum.pq=''; render(); var q=$('s-pq'); if(q) q.focus(); }; });
+    if($('s-xlsx')) $('s-xlsx').onclick=exportSummary;
     if($('s-pclose')) $('s-pclose').onclick=function(){ S.sum.popup=null; render(); };
     if($('s-pq')) $('s-pq').oninput=function(e){ S.sum.pq=e.target.value; var pos=e.target.selectionStart; render(); var q=$('s-pq'); q.focus(); q.setSelectionRange(pos,pos); };
     var md=document.querySelector('.modal'); if(md) md.addEventListener('click',function(e){ if(e.target===md){ S.sum.popup=null; render(); } });
@@ -1358,6 +1464,7 @@ function bind(){
     $('r-month').onchange=function(e){ S.rec.month=e.target.value; render(); };
     document.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick=function(){ S.rec.tab=b.dataset.tab; render(); }; });
     $('r-msg').onclick=function(){ S.rec.msg=S.rec.month; render(); };
+    $('r-xlsx').onclick=function(){ if(RECX) RECX(); };
     if($('r-modal')){
       $('r-msgm').onchange=function(e){ S.rec.msg=e.target.value; render(); };
       $('r-msgclose').onclick=function(){ S.rec.msg=null; render(); };
