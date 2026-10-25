@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<title>NIM · KEX Claim</title>
+<title>KEX Damage &amp; Lost · NiM Express</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
@@ -160,7 +160,7 @@ tr.oth td{color:var(--muted);font-style:italic}tr.tot td{font-weight:700;border-
 .tagx{font-size:11px;color:#B45309;background:var(--claim-soft);border-radius:4px;padding:1px 6px}.tagr{font-size:11px;color:var(--red);background:var(--red-soft);border-radius:4px;padding:1px 6px}
 .xt td,.xt th{padding:7px 8px;font-size:13px}.xt td.cx,.xt td.c0{text-align:center;font-weight:600;border:2px solid var(--card);border-radius:4px}.xt td.c0{color:#C8CDD4}.xt .nm{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xt tfoot td{font-weight:700;border-top:2px solid var(--line)}
 .modal{position:fixed;inset:0;background:rgba(24,33,43,.45);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}.mbox{width:min(900px,100%);padding:18px 20px;max-height:90vh;display:flex;flex-direction:column}
-.only-img{display:none}.img-mode .only-img{display:block}
+.only-img{display:none}.img-mode .only-img{display:block}.img-mode .s-all,.img-mode .no-img{display:none!important}
 @media (max-width:700px){.frow{grid-template-columns:minmax(120px,1fr) 60px 40px 56px}.frow.l2 .fl{padding-left:16px}.fsub{margin-left:12px}.darr{display:none}}
 .sumtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:12px}
 .sumtiles .tile.main{background:var(--primary-soft);border-color:#B8CBE8}.tile.main .ico{background:#fff}
@@ -229,13 +229,53 @@ h1{color:#14335E}
   .grid-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
 @media (max-width:600px){nav button span.t{display:none}nav button{padding:10px}nav .brand span{display:none}}
+
+/* ===== รูปสรุป A4 แนวนอน (สร้างนอกจอเพื่อบันทึกรูป) ===== */
+#a4wrap{position:fixed;left:-20000px;top:0;z-index:-1}
+.a4{width:794px;height:1123px;box-sizing:border-box;padding:24px 28px 14px;background:#fff;color:#18212B;font-family:'IBM Plex Sans Thai',sans-serif;display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.a4 .hd{display:flex;align-items:flex-end;gap:16px;border-bottom:3px solid #2C64AC;padding-bottom:8px}
+.a4 .wm{font-weight:700;font-style:italic;font-size:15px;letter-spacing:.2px}.a4 .wm b{color:#2C64AC}.a4 .wm i{color:#F07D1A;font-style:italic}.a4 .wm span{color:#6B7280}
+.a4 h1{font-size:20px;line-height:27px;margin:2px 0 0;color:#14335E}.a4 .sub{font-size:13px;color:#2C64AC;font-weight:600}
+.a4 .rt{margin-left:auto;text-align:right;font-size:9.5px;color:#4B5563;line-height:1.5}
+.a4 .tl{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.a4 .t{border:1px solid #DDE1E7;border-radius:10px;padding:5px 9px}.a4 .t.m{background:#EAF1FB;border-color:#CFDDF2}.a4 .t.r{background:#FDEDEC;border-color:#F6CFCD}
+.a4 .t .l{font-size:11px;color:#374151}.a4 .t .v{font-size:19px;font-weight:700;line-height:24px}.a4 .t .v small{font-size:12px;color:#C62F2A;margin-left:6px}.a4 .t .s{font-size:10px;color:#6B7280}
+.a4 .g3{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;align-items:start}.a4 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+.a4 h3{font-size:12px;margin:0 0 2px;color:#14335E}
+.a4 table{width:100%;border-collapse:collapse;font-size:10.5px;table-layout:fixed}
+.a4 th{font-size:9.5px;color:#4B5563;font-weight:600;text-align:right;padding:2px 4px;border-bottom:1.5px solid #18212B;white-space:nowrap}.a4 th:first-child{text-align:left}
+.a4 td{padding:2.5px 4px;line-height:1.3;border-bottom:1px solid #EEF0F3;text-align:right;white-space:nowrap}.a4 td:first-child{text-align:left;white-space:normal;line-height:1.2}
+.a4 tr.top td{background:#FFF4E6}.a4 tr.oth td{color:#4B5563;font-style:italic}.a4 tfoot td{font-weight:700;border-top:1.5px solid #18212B;border-bottom:0}
+.a4 .up{color:#C62F2A;font-weight:700}.a4 .dn{color:#15803D;font-weight:700}.a4 .eq{color:#9AA3AE}
+.a4 .x td.c{text-align:center;font-weight:600}.a4 .x td.c0{text-align:center;color:#C5CBD3}
+.a4 .tagr{font-size:9px;background:#FDE2E1;color:#B91C1C;border-radius:4px;padding:0 4px;margin-left:4px;font-style:normal}
+.a4 .ft{margin-top:auto;display:flex;justify-content:space-between;font-size:10px;color:#6B7280;border-top:1px solid #DDE1E7;padding-top:5px}
+
+nav .brand img.lg{display:block;width:196px;height:auto}nav .brand img.lg-s{display:none;height:22px;width:auto}
+nav .sub.pn{font-size:13px;font-weight:700;letter-spacing:1.2px;color:#14335E;padding:6px 10px 18px}nav .sub.pn b{color:#F07D1A}
+@media (max-width:1024px){nav .brand img.lg{width:150px}}
+@media (max-width:600px){nav .brand img.lg{display:none}nav .brand img.lg-s{display:block}}
+.a4 .lg{display:block;height:26px;width:auto}.a4 .pn{font-size:11px;font-weight:700;letter-spacing:1.2px;color:#14335E;margin-left:auto}.a4 .pn b{color:#F07D1A}
+.a4 .shd{display:flex;align-items:baseline;gap:8px;margin-top:4px;border-top:2px solid #18212B;padding-top:6px;height:auto;background:none;min-width:0;border-radius:0;line-height:1.4}.a4 .shd .n{color:#2C64AC;font-weight:700;font-size:15px}.a4 .shd b{font-size:15px;color:#14335E}.a4 .shd span.d{font-size:10.5px;color:#6B7280}
+.a4 .t4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.a4 .t.o{background:#FFF2E6;border-color:#F6D6B8}.a4 .t.n2{background:#E6EDF7;border-color:#C9D6EA}
+.a4 .t .d{font-size:10px;color:#4B5563}.a4 .t .d .up{color:#C62F2A}.a4 .t .d .dn{color:#15803D}
+.a4 .bars{display:flex;align-items:flex-end;gap:10px;height:150px;padding:0 4px;border-bottom:1px solid #C5CBD3}.a4 .bars .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;max-width:54px}
+.a4 .bars .c i{display:flex;flex-direction:column;width:100%;border-radius:3px 3px 0 0;overflow:hidden}.a4 .bars .c.cur i{outline:2px solid #18212B;outline-offset:1px}.a4 .bars .v{font-size:10px;font-weight:700}.a4 .bars .m{font-size:9.5px;color:#4B5563;margin-top:3px}
+.a4 .xl{display:flex;justify-content:space-around;padding:0 4px}.a4 .lgd{font-size:9.5px;color:#4B5563;display:flex;gap:10px}.a4 .lgd i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:3px}
+.a4 .g2b{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}.a4 .g3b{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start}
+.a4 .fr{display:grid;grid-template-columns:150px 1fr 30px 44px;gap:6px;align-items:center;font-size:11px;padding:3.5px 0;border-bottom:1px solid #EEF0F3}.a4 .fr .tr{height:9px;background:#EEF0F3;border-radius:5px}.a4 .fr .tr i{display:block;height:100%;border-radius:5px}
+.a4 .fr .n{text-align:right;font-weight:700}.a4 .fr .p{text-align:right;color:#4B5563}.a4 .fr.l0 span:first-child{font-weight:700}.a4 .fr.l1 span:first-child{padding-left:8px;font-weight:600}.a4 .fr.l2 span:first-child{padding-left:20px}
+.a4 .fs{font-size:10px;color:#7C2D12;background:#FFF4E6;border-radius:6px;padding:4px 8px;margin:3px 0 3px 20px}
+.a4 .mn{display:grid;grid-template-columns:1fr auto auto;gap:3px 10px;font-size:11px;margin-top:4px}.a4 .mn .a{text-align:right;font-weight:700}.a4 .mn .c{text-align:right;color:#6B7280}.a4 .mn .w{color:#9A3412}
+.a4 .kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.a4 .kp div{border:1px solid #DDE1E7;border-radius:8px;padding:4px 8px;font-size:9.5px;color:#4B5563}.a4 .kp b{display:block;font-size:15px;color:#18212B}
+.a4 .lt{font-size:10px;background:#FDE2E1;color:#B91C1C;border-radius:6px;padding:4px 8px;margin:4px 0}
 </style>
 </head>
 <body>
 <div class="app">
   <nav aria-label="เมนูหลัก">
-    <div class="brand"><b>NIM</b><span class="bd">·</span><span class="bk">KEX</span><span class="bc">Claim</span></div>
-    <div class="sub">เคสเสียหาย / สูญหาย · KEX</div>
+    <div class="brand"><img class="lg" alt="NiM Express"><img class="lg-s" alt="NiM"></div>
+    <div class="sub pn"><b>KEX</b> · DAMAGE &amp; LOST</div>
     <button type="button" data-page="dashboard"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3 3h6v8H3zM11 3h6v5h-6zM11 10h6v7h-6zM3 13h6v4H3z"/></svg><span class="t">Dashboard KEX</span></button>
     <button type="button" data-page="list"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10"/><circle cx="3.5" cy="5" r="1"/><circle cx="3.5" cy="10" r="1"/><circle cx="3.5" cy="15" r="1"/></svg><span class="t">รายการเคส</span></button>
     <button type="button" data-page="form"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="10" cy="10" r="7.5"/><path d="M10 6.5v7M6.5 10h7"/></svg><span class="t">เปิดเคสใหม่</span></button>
@@ -296,7 +336,7 @@ var FD = {
   incident_detail:{ l:'รายละเอียดเหตุการณ์', t:'textarea', wide:true },
   cc_action:{ l:'ความประสงค์ผู้รับ (จาก CC)', t:'select', list:'cc_action', hint:'นำส่ง / ส่งคืน / ทำลาย' },
   claim_intent:{ l:'ความประสงค์ลูกค้า (จาก CC)', t:'select', list:'claim_intent', hint:'ไม่ประสงค์เคลม = ปิดเคสทันที · เว้นว่างได้ถ้า CC ยังไม่มีผล' },
-  prescreen:{ l:'ผลตรวจเงื่อนไขเบื้องต้น (ทีม Claim)', t:'select', list:'prescreen', hint:'ไม่เข้าเงื่อนไข = ปิดเคสทันที · ยังไม่ชัด เว้นว่าง แล้วพิจารณาตอนลูกค้ายื่นเคลม' },
+  prescreen:{ l:'ผลพิจารณาเงื่อนไข', t:'select', list:'prescreen', hint:'เข้าเงื่อนไข · ไม่เข้าเงื่อนไข = ปิดเคสทันที · รอตรวจสอบ = ยังตัดสินไม่ได้ (รอรูป / ข้อมูล DC)' },
   cc_date:{ l:'วันที่ได้ผลจาก CC', t:'date' },
   goods_result:{ l:'ผลการจัดการสินค้า', t:'text' },
   goods_done_date:{ l:'วันที่จัดการสินค้าเสร็จ', t:'date', hint:'เว้นว่าง = วันที่กดยืนยัน' },
@@ -320,7 +360,7 @@ var FD = {
   overpay_note:{ l:'หมายเหตุ / เลขอ้างอิง', t:'text' },
   cust_paid_amount:{ l:'ยอดโอนให้ลูกค้า (บาท)', t:'money', hint:'ตั้งต้นจากยอดเรียกร้อง' }
 };
-var REQ = ['product_group','size','source','owner','kex_notice_date','cust_claim_date','nim_claim_no','tracking_no','nim_tracking_no','incident_type','origin_dc','sender',
+var REQ = ['prescreen','product_group','size','source','owner','kex_notice_date','cust_claim_date','nim_claim_no','tracking_no','nim_tracking_no','incident_type','origin_dc','sender',
   'product_desc','goods_value','claim_submit_date','claim_amount','kex_decision',
   'kex_decision_date','kex_paid_date','kex_paid_amount','cust_paid_date','cust_paid_amount','appeal_date','appeal_reason'];
 function labelOf(k){ return FD[k] ? FD[k].l : k; }
@@ -337,6 +377,9 @@ function tIco(l,cls){ l=String(l); var k = /เฉลี่ย|วัน/.test(l
   var tone = /warn/.test(cls||'') || k==='bell' ? 'org' : (k==='alert' ? 'red' : '');
   return '<span class="ico '+tone+'" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+TICO[k]+'</svg></span>'; }
 function fmtD(s){ if(!s) return '–'; var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m ? m[3]+'/'+m[2]+'/'+m[1] : esc(s); }
+var LOGO_SRC='data:image/png;base64,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';
+var LOGO_NIM='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATEAAABQCAMAAABGZLIRAAAAkFBMVEXtHCQAAAD/AADsGyPsGyP/AD7sGyPsGyPtGyPtGyPrGCb/AFW+AD7tHBywAADxJCV/AADXJibSACzcHR3/NTXpHB7aFSOqAFXMMzP/AH+/Pz8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACf+NvYAAAAMHRSTlP+AAHRsQRtjy9OFAMEDgMOAgYFCQQgEwMFAgQAAAAAAAAAAAAAAAAAAAAAAAAAAACg/Dn3AAAHCUlEQVR42s1caYOrKBBsQEW8YjIz79j//0PXZBITDqEP4zy+7b5BsYDq6qIDqHzTqnVLa3LNLX+VfYSz+VZVjf8IrZqq1BrV+126ypSa8/sErVa/Kig1AwXA9AjldtI5yPTFFJ/gg671R/mlrQ9yrZpyH5MZ6PJPrjxQaAqIocYBzfJ3m21Qrvwl9K+vgoWtPxGfC9vbYVLKIh5guuIaw4wjN3XLECsq5Ji3uus3elsfMdAI55cF1lWYB1gFBRZDjSMzdVciLPfv/E2JWZUfWlPnJbGX197ID136lxDDjaPaRmxALHYbkjh9VWLm5ftVdeozBwvYD4VCoAQQTN3tESOm9+R1+cKsypk6L/eOEYMs/6M1yN5LsIU872PHYbe4n0HimLdWoRoZkQONo9TyoAbb+UrYIJYWeYGBI/Ga+laOtEhHqUWEWaDAnUNswNLhtsBgkDhKjQSfjQvpCbApO3JpoyqsMYV/2IbAYJG4eRvvhxuasiNv3DOoHGKkcaS5nyUtEF1OiiUtwveh0qLwGzOI9coCb+okJN6j1MgQpJRAWik1JS0KRwqZJXaiPC5YKvcxddTFiXprSw+uscBApkVehBqyiNWkLZ4UGDgSn+lqZCLPS/jlulZfFa2buejCGjsbYEydlMQ/qUbH0t8RP/26Iamd1pFuIjaRH+l8dsHyvocz5q2m1uyQft/VWp0tFbBHmgHSlDIjMFgk/r6U8nVbt4YM2CP5hV2kRZKQZzXSeZ+8Kokh/WELAvvrQGA5xFPXC1PKXjVpu9lzq4N5OcERbTU9QWA5lLToiUziqKZFIZ3b1uQX9pEWCYZBpZRTQsMtbZ5nvdnopwh7tJULQOJWZymGQeKMBTfQVQKrPdUmiNzqjG/DSCmf/6EvddzO49I6cUjntWeEgo2UspLRIy51idxqmz1t/F6VgzSkc9pLhIL0EuukU6E50oKchbJCOm/z5BGr2eNYBcbb3OpeHtIZe+eFn0HoVm8xk/6LkRbDcW61qL1GKEguMSd9Nkpa+GcDNd3o4IZ0chtVYY0p/jjMeIPhKLf6KGnxwgWQci1aEUcO6CPHY91qibSYsoj1ovhzExgDncRZRsfXIYD5EQp2lBbrhPyjbjV/20xZxKTxZ9n0Nf3IkaFGyG41d9f4ESqxxmph/OmWKaGSuGa41UellEG4gZjFnPgNdF9wOMStlkuLFGKTOP6YEfEIG+qEI9xqubRIILbHONyb3Gql9wvpbC8+QmyP1LbCkPhvurT4mZQyNO1AdhDOD9g9vSxP/6hbvYHYQeMI3GpWbfVZzvsGsZ+ic+twjc3lcexAH6zaak0uTCv8SdVhuCCsjQA675/kk3tMbXWjCv9MdzATiGF0gVg4HlRb3WU3u1P0Uq0IMVRK2cmTk7C2mi4tcDXvmZFWnfqDCDeugBjONz5LBchBbnWrPjcX75KXXBj1tiFiSN/4U2huRLXVdDpBBtfN1euuB8l0BzNCDFvlLDTy9qitnnCnCGlUlh1Z47hgVIU1hkRdmEkd41abs944O7C3o2SGgxkhhveNZQcSnbgACh1cUzzjbhWKmictfMTwqIucqYouLSxLWsypqFLd54uTZoSIEVAXuZ/yg3BCcA0fbx/FHTgHc8giRkFd4LDLf65LOgr2l/D3jsQyYa0La+wPPrkTWBwhiZ/fUlttnvUfrR8j+aVaIWKa5BvzBQYjpWS41U/JN69/bZ/lVkhpMRcQo6DOFhgH1VY/g+u6ItcdqVjnqRFi1OSOKzCOcatfguud9V52pERavCA2EAUd03pk/WyLk1JqP7Jar2IUM3izVWIKpCPpSXq86jjSYhIFV61b87ojr9xG/mFxjBg9yLMEhvnvELc69Gs/Qv+WnmbEa0yTC+Q43B+SeE+e64FV8z6Rq3w3rwq4I4b5/HtlmKgUiSEtRmZKuV30LuL9B2I9q/aevMgOc6u19C6i4Dw1QgznVofjoAuMo6TFkL+KSPbrH8Cj3kvLpiq6Vx8ZHfTgyqnyzV3dBMwq5+/JokqLQexacD0aIRMGiHGqnBk1GlFtdUN+Kz2k86p8R1VYY8wzAiL3Mw7Coy5It1rJ7qSwucsDAYl6l74AhHczB5/3ZRtqFyYESfwh1dNX9Mpyy/jZ1riHtMg9AkSCjn3D0LvdatE1h66AGONOjh1usXpXbXVbvGkVw4SFNSZAnSAwwtrqkXy5ZE2/9HN3aXFFjFPlzBEYJ0X+2daF41Zr8TWHhSQLJhHq3BsffyyllDMhCMfBu1V0epO0KKeUYiZcEJMJOt7NtQwZOSs57+/BhAqIbjVTYPj8Mv9YSilwq1fEpOPg3MDNOJlAbSinxdJi261eEcOg3meHMRYveTfhzfDaFi+Td6HP0z7+ZfPS+iZP2eqvyt+af21t8ZaS/wG89ElKWz4r9AAAAABJRU5ErkJggg==';
+document.addEventListener('DOMContentLoaded',function(){ document.querySelectorAll('nav .brand img.lg').forEach(function(i){i.src=LOGO_SRC;}); document.querySelectorAll('nav .brand img.lg-s').forEach(function(i){i.src=LOGO_NIM;}); });
 var TH_M = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
 function mLabel(ym){ var p=ym.split('-'); return TH_M[Number(p[1])-1]+' '+p[0]; }
 function mShort(ym){ return TH_M[Number(ym.split('-')[1])-1]; }
@@ -476,7 +519,7 @@ document.querySelectorAll('nav button[data-page]').forEach(function(b){ b.addEve
 
 function refreshCases(){ return api('getCases').then(function(c){ S.cases=c; saveCache(); }); }
 function applyBundle(r){ if(r.cases){ S.cases=r.cases; saveCache(); } if(r.detail && S.form.caseId===r.detail.caseData.case_id){ S.form.detail=r.detail; } }
-function oldConnector(){ return S.boot && !(S.boot.statuses||[]).some(function(s){ return s.code==='K1'; }); }
+function oldConnector(){ return S.boot && (!(S.boot.statuses||[]).some(function(s){ return s.code==='K1'; }) || (S.boot.lists.prescreen||[]).indexOf('รอตรวจสอบ')<0); }
 
 function render(){
   var m=document.getElementById('main');
@@ -487,7 +530,7 @@ function render(){
   else if(S.page==='form') h=viewForm();
   else if(S.page==='reconcile') h=viewReconcile();
   else if(S.page==='summary') h=viewSummary();
-  if(oldConnector()) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังเป็นรุ่นเก่า</b> — หน้าเว็บนี้ใช้กับตัวเชื่อมรุ่นใหม่ (แยกฝั่ง KEX / NIM) · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
+  if(oldConnector()) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังเป็นรุ่นเก่า</b> — หน้าเว็บนี้ใช้กับตัวเชื่อมรุ่นใหม่ (เปิดเคส + พิจารณาเงื่อนไข) · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
   else if(!(S.boot.lists||{}).overpay_action || !stOf('KN')) h='<div class="msg bad" role="alert"><b>ตัวเชื่อมใน Google Sheet ยังไม่ใช่รุ่นล่าสุด</b> — ยังไม่มีรายการ Size / วันที่บิล · วาง Code.txt ชุดใหม่ใน Apps Script แล้วกด Deploy › Manage deployments › แก้ไข › เวอร์ชันใหม่</div>'+h;
   m.innerHTML=h;
   bind();
@@ -534,6 +577,13 @@ function frow(lbl, rows, total, lvl, color, strong){
   return '<div class="frow l'+lvl+'"'+drillAttr(lbl,rows)+'><span class="fl">'+(strong?'<b>'+lbl+'</b>':lbl)+'</span><div class="ftrack"><div style="width:'+w.toFixed(1)+'%;background:'+color+'"></div></div><span class="fn"><b>'+rows.length+'</b></span><span class="fp">'+pct(rows.length,total)+'</span></div>';
 }
 function avgDays(rows, a, b){ var d=rows.map(function(c){ return c[b] ? daysBetween(c[a], c[b]) : null; }).filter(function(x){return x!=null;}); return d.length ? (d.reduce(function(s,x){return s+x;},0)/d.length) : null; }
+var DASHX=null;
+function saveDashImage(){
+  if(!DASHX) return;
+  var w=document.getElementById('a4wrap'); if(!w){ w=document.createElement('div'); w.id='a4wrap'; document.body.appendChild(w); }
+  w.innerHTML='<div id="a4sheet">'+DASHX()+'</div>';
+  saveImage('a4sheet','KEX_Damage_Lost_'+S.dash.month+'_A4.png', function(){ var x=document.getElementById('a4wrap'); if(x) x.innerHTML=''; }, '#FFFFFF');
+}
 function viewDashboard(){
   DRILL={};
   var D=S.dash, months=monthsAvailable(), first=firstMonth();
@@ -640,6 +690,59 @@ function viewDashboard(){
       tile('เฉลี่ยวันที่ KEX จ่ายเงิน', aPay==null?'–':aPay.toFixed(1)+' วัน','นับจากวันแจ้งเคลม KEX')+'</section></div>'
     : '<div class="card empty">เดือนนี้ยังไม่มีเคสที่แจ้งเคลมกับ KEX</div>');
 
+  DASHX=function(){
+    var thY=function(ym){ return TH_M[Number(ym.slice(5,7))-1]+' '+(Number(ym.slice(0,4))+543); };
+    var dl=function(c,p2,fmt){ if(isFirst) return 'เดือนแรกที่ส่งกับ KEX'; if(c==null||p2==null) return ''; var d=c-p2; if(Math.abs(d)<1e-9) return 'เท่าเดือนก่อน'; return '<span class="'+(d>0?'up':'dn')+'">'+(d>0?'▲':'▼')+fmt(Math.abs(d))+'</span> จากเดือนก่อน'; };
+    var t=function(l,v,s2,cls){ return '<div class="t '+cls+'"><div class="l">'+l+'</div><div class="v">'+v+'</div><div class="d">'+s2+'</div></div>'; };
+    var tiles=t('เคสเดือนนี้',N,dl(N,prev.length,f0),'m')+t('เคสต่อ 100 ชิ้น',rate==null?'–':rate.toFixed(2),vol?dl(rate,prate,f2)+' · ส่ง '+int(vol)+' ชิ้น':'ยังไม่กรอกยอดส่ง','n2')+
+      t('เสียหาย / สูญหาย / บางส่วน',dmg.length+' / '+lostAll.length+' / '+part.length,pct(dmg.length,N)+' / '+pct(lostAll.length,N)+' / '+pct(part.length,N),'r')+
+      t('KEX ไม่ได้แจ้งเอง',self.length+' เคส',dl(self.length,pself.length,f0)+' · '+pct(self.length,N),'o');
+    /* กราฟรายเดือน (จำนวนเคส) */
+    var tc=tm.map(function(m){ var rs=S.cases.filter(inM(m)), l=byType(rs,'lost').length; return { m:m, n:rs.length, l:l }; });
+    var mx=Math.max.apply(null,tc.map(function(x){return x.n;}).concat([1]));
+    var chart='<div><h3>จำนวนเคสรายเดือน</h3><div class="lgd"><span><i style="background:#2C64AC"></i>เสียหาย</span><span><i style="background:#D03430"></i>สูญหาย / บางส่วน</span></div><div class="bars">'+
+      tc.map(function(x){ var h=Math.round(x.n/mx*124); return '<div class="c'+(x.m===D.month?' cur':'')+'"><span class="v">'+x.n+'</span><i style="height:'+h+'px">'+(x.n?'<b style="flex:'+x.l+' 1 0;background:#D03430"></b><b style="flex:'+(x.n-x.l)+' 1 0;background:#2C64AC"></b>':'')+'</i></div>'; }).join('')+
+      '</div><div class="bars" style="height:auto;border:0;align-items:flex-start">'+tc.map(function(x){ return '<div class="c" style="height:auto"><span class="m">'+mShort(x.m)+' '+String(Number(x.m.slice(0,4))+543).slice(2)+'</span></div>'; }).join('')+'</div></div>';
+    /* Top 5 */
+    var top=function(title,f,label){ var g={}; cur.forEach(function(c){ var k=c[f]||('ไม่ระบุ'+label); (g[k]=g[k]||[]).push(c); });
+      var a=Object.keys(g).map(function(k){ return { name:k, rows:g[k] }; }).sort(function(x,y){ return y.rows.length-x.rows.length || billCount(y.rows)-billCount(x.rows); });
+      var t5=a.slice(0,5), rest=a.slice(5), rr=[].concat.apply([],rest.map(function(x){return x.rows;}));
+      return '<div><h3>'+title+'</h3><table><colgroup><col><col style="width:28px"><col style="width:32px"><col style="width:40px"></colgroup><thead><tr><th>'+label+'</th><th>บิล</th><th>กล่อง</th><th>%</th></tr></thead><tbody>'+
+        t5.map(function(x,i){ return '<tr'+(i===0?' class="top"':'')+'><td>'+esc(x.name)+'</td><td>'+billCount(x.rows)+'</td><td><b>'+x.rows.length+'</b></td><td>'+pct(x.rows.length,N)+'</td></tr>'; }).join('')+
+        (rest.length?'<tr class="oth"><td>อื่น ๆ (อีก '+rest.length+')</td><td>'+billCount(rr)+'</td><td>'+rr.length+'</td><td>'+pct(rr.length,N)+'</td></tr>':'')+
+        '</tbody><tfoot><tr><td>รวม</td><td>'+billCount(cur)+'</td><td>'+N+'</td><td>'+(N?'100%':'–')+'</td></tr></tfoot></table></div>'; };
+    /* ส่วนที่ 2 */
+    var fr=function(l,rows,lv,col){ if(lv>0 && !rows.length) return ''; var w=N?rows.length/N*100:0; return '<div class="fr l'+lv+'"><span>'+l+'</span><div class="tr"><i style="width:'+w.toFixed(1)+'%;background:'+col+'"></i></div><span class="n">'+rows.length+'</span><span class="p">'+pct(rows.length,N)+'</span></div>'; };
+    var sub=fEl.length?'<div class="fs">เคลมกับ KEX <b>'+elKex.length+'</b>'+(elKN.length?' · ไม่เคลม KEX (NIM รับภาระ) <b>'+elKN.length+'</b>':'')+' · โอนลูกค้าแล้ว <b>'+nd.length+'</b> · รอโอน <b>'+n2.length+'</b></div>':'';
+    var s2='<div><div class="fr" style="border-bottom:1.5px solid #18212B;font-size:9.5px;color:#4B5563"><span></span><span></span><span class="n" style="font-weight:600">เคส</span><span class="p">%</span></div>'+
+      fr('เคสทั้งหมด',cur,0,'#14335E')+fr('ลูกค้ายื่นเคลม NIM',filed,1,'#2C64AC')+fr('รอพิจารณาเงื่อนไข',fC1,2,'#93B4DE')+fr('เข้าเงื่อนไข',fEl,2,'#1F4A85')+sub+
+      fr('ไม่เข้าเงื่อนไข',fX6,2,'#C5CBD3')+fr('ปิดแล้ว · ไม่เคลม',fOther,2,'#C5CBD3')+fr('ไม่ได้ยื่นเคลม',notFiled,1,'#9AA3AE')+fr('ยังรอลูกค้ายื่นเคลม',nfWait,2,'#93B4DE')+fr('ปิดแล้ว · ไม่ได้ยื่นเคลม',nfClosed,2,'#C5CBD3')+
+      (why.length?'<div class="fs" style="background:#F1F5F9;color:#4B5563">'+why.map(function(w){ return w[0]+' '+w[1].length; }).join(' · ')+'</div>':'')+'</div>';
+    /* ส่วนที่ 3 */
+    var s3 = !kx.length ? '<div style="font-size:11px;color:#6B7280;padding:10px 0">เดือนนี้ยังไม่มีเคสที่แจ้งเคลมกับ KEX</div>' :
+      '<div class="mn"><span>ยอดเรียกร้อง KEX</span><span class="a">'+int(sumF(kx,'claim_amount'))+'</span><span class="c">'+kx.length+' เคส</span>'+
+      '<span>KEX อนุมัติ</span><span class="a">'+int(sumF(apr,'approved_amount'))+'</span><span class="c">'+apr.length+' เคส</span>'+
+      '<span>ได้รับจริง</span><span class="a">'+int(sumF(paidR,'kex_paid_amount'))+'</span><span class="c">'+paidR.length+' เคส</span>'+
+      '<span class="w">ค้างรับจาก KEX</span><span class="a w">'+int(recvAmt)+'</span><span class="c">'+recv.length+' เคส</span>'+
+      (ovr.length?'<span class="w">KEX โอนเกิน รอจัดการ</span><span class="a w">'+int(sumF(ovr,overpay))+'</span><span class="c">'+ovr.length+' เคส</span>':'')+'</div>'+
+      (lateAll.length?'<div class="lt"><b>เกิน SLA กับ KEX '+lateAll.length+' เคส</b></div>':'')+
+      '<table style="margin-top:4px"><colgroup><col><col style="width:30px"><col style="width:44px"><col style="width:42px"><col style="width:64px"></colgroup><thead><tr><th>สถานะ</th><th>เคส</th><th>%</th><th>เกิน SLA</th><th>ยอดเรียกร้อง</th></tr></thead><tbody>'+
+      KS.map(function(k){ var rs=kx.filter(function(c){ return kexCode(c)===k[0]; }); if(!rs.length) return ''; var lt=lateK(rs).length;
+        return '<tr><td>'+k[1]+'</td><td><b>'+rs.length+'</b></td><td>'+pct(rs.length,kx.length)+'</td><td'+(lt?' style="color:#B91C1C;font-weight:700"':'')+'>'+(lt||'–')+'</td><td>'+int(sumF(rs,'claim_amount'))+'</td></tr>'; }).join('')+
+      '</tbody><tfoot><tr><td>รวม</td><td>'+kx.length+'</td><td>100%</td><td>'+(lateAll.length||'–')+'</td><td>'+int(sumF(kx,'claim_amount'))+'</td></tr></tfoot></table>'+
+      '<div class="kp"><div>อัตราอนุมัติ<b>'+(dec.length?Math.round(ok.length/dec.length*100)+'%':'–')+'</b>'+ok.length+' จาก '+dec.length+' เคส</div><div>เฉลี่ยวัน KEX ให้ผล<b>'+(aDec==null?'–':aDec.toFixed(1)+' วัน')+'</b>นับจากแจ้งเคลม</div><div>เฉลี่ยวัน KEX จ่าย<b>'+(aPay==null?'–':aPay.toFixed(1)+' วัน')+'</b>นับจากแจ้งเคลม</div></div>';
+    var openM=D.month===ym(S.boot.today);
+    return '<div class="a4">'+
+      '<div class="hd"><div><div style="display:flex;align-items:center;gap:14px"><img class="lg" src="'+LOGO_SRC+'" alt="NiM Express"><span class="pn"><b>KEX</b> · DAMAGE &amp; LOST</span></div><h1>รายงานสินค้าเสียหาย / สูญหาย จากการส่งต่อ KEX</h1><div class="sub">รอบข้อมูล '+thY(D.month)+(openM?' (ยังไม่จบเดือน)':'')+'</div></div>'+
+      '<div class="rt">นับตามรอบเดือนข้อมูล<br>% คิดจากจำนวนเคส (กล่อง)</div></div>'+
+      '<div class="shd" style="border-top:0;padding-top:0;margin-top:0"><span class="n">1</span><b>เคสที่เกิดขึ้น</b></div><div class="t4">'+tiles+'</div>'+
+      '<div class="g2b">'+chart+top('Top ผู้ส่ง','sender','ผู้ส่ง')+'</div>'+
+      '<div class="g3b">'+top('Top กลุ่มสินค้า','product_group','กลุ่มสินค้า')+top('Top Size','size','Size')+top('Top DC ต้นทาง','origin_dc','DC')+'</div>'+
+      '<div class="g2b" style="margin-top:2px"><div><div class="shd"><span class="n">2</span><b>การเคลม</b><span class="d">จากเคสที่เกิดในเดือนนี้</span></div>'+s2+'</div>'+
+      '<div><div class="shd"><span class="n">3</span><b>เคลมกับ KEX</b><span class="d">ไม่รวมเคสที่ไม่เคลม KEX</span></div>'+s3+'</div></div>'+
+      '<div class="ft"><span>'+(openM?'เดือนนี้ยังไม่จบ ตัวเลขยังเพิ่มได้ · ':'')+'ตารางเคสที่ค้างกับ KEX ดูได้ในหน้าเว็บ / Excel</span><span>ข้อมูล ณ '+thD(S.boot.today)+' · KEX · DAMAGE &amp; LOST</span></div>'+
+    '</div>';
+  };
   /* เคสค้างกับ KEX ทุกเดือน */
   var pend=S.cases.filter(function(c){ var k=code(c.kex_track); return code(c.status)==='C2' && (k==='K1'||k==='K2'||k==='K3'); })
     .map(function(c){ var k=code(c.kex_track); return { c:c, k:k, days: k==='K1' ? daysSince(c.cust_claim_date) : daysSince(c.claim_submit_date) }; })
@@ -654,8 +757,7 @@ function viewDashboard(){
   return ''+
   '<div class="head"><div class="title"><h1>KEX Damage &amp; Lost</h1><div class="desc">สินค้าเสียหาย / สูญหายจากการส่งต่อ KEX · นับตามรอบเดือนข้อมูล · '+esc(mLabel(D.month))+'</div></div>'+
   '<label class="f no-print">รอบเดือน<select id="d-month">'+opts(months.map(function(m){return {v:m,l:mLabel(m)};}),D.month)+'</select></label>'+
-  '<button type="button" class="btn no-print" id="d-img" style="align-self:flex-end">บันทึกเป็นรูป</button>'+
-  '<button type="button" class="btn primary no-print" id="d-print" style="align-self:flex-end">พิมพ์ / PDF ประชุม</button></div>'+
+  '<button type="button" class="btn primary no-print" id="d-img" style="align-self:flex-end">บันทึกเป็นรูป</button></div>'+
   '<div id="dash-sheet" style="display:flex;flex-direction:column;gap:12px;background:var(--bg)">'+
     '<div class="only-img"><h2 style="font-size:20px">KEX Damage &amp; Lost · '+esc(mLabel(D.month))+'</h2></div>'+
     sec1+sec2+sec3+'</div>'+pendTbl;
@@ -759,12 +861,12 @@ function fieldHtml(k,c,o){
   var f=FD[k]||{ l:k, t:'text' }; o=o||{};
   var v=c[k]; v=(v==null)?'':v;
   var miss=S.form.missing.indexOf(k)>=0 ? ' err' : '';
-  var req=REQ.indexOf(k)>=0 && !o.noReq ? ' *' : '';
+  var req=(o.req || (REQ.indexOf(k)>=0 && !o.noReq)) ? ' *' : '';
   var id='f-'+k, ctl, ph=o.ph ? ' placeholder="'+esc(o.ph)+'"' : '';
   if(f.t==='month') ctl='<input type="month" id="'+id+'" data-k="'+k+'" value="'+esc(String(v).slice(0,7))+'" class="'+miss+'">';
   else if(f.t==='date') ctl='<input type="date" id="'+id+'" data-k="'+k+'" value="'+esc(String(v).slice(0,10))+'" class="'+miss+'">';
   else if(f.t==='money') ctl='<input type="number" step="0.01" min="0" inputmode="decimal" id="'+id+'" data-k="'+k+'" value="'+esc(v)+'"'+ph+' class="'+miss+'" style="text-align:right">';
-  else if(f.t==='select') ctl='<select id="'+id+'" data-k="'+k+'" class="'+miss+'">'+opts(S.boot.lists[f.list]||[],v,'— เลือก —')+'</select>';
+  else if(f.t==='select'){ var li=(S.boot.lists[f.list]||[]).slice(); if(v!=='' && li.indexOf(v)<0) li.unshift(v); ctl='<select id="'+id+'" data-k="'+k+'" class="'+miss+'">'+opts(li,v,'— เลือก —')+'</select>'; }
   else if(f.t==='list') ctl='<input type="text" list="dl-'+f.list+'" id="'+id+'" data-k="'+k+'" value="'+esc(v)+'" class="'+miss+'" autocomplete="off">';
   else if(f.t==='textarea') ctl='<textarea id="'+id+'" data-k="'+k+'" rows="2" class="'+miss+'">'+esc(v)+'</textarea>';
   else if(f.t==='readonly') ctl='<input type="text" id="'+id+'" value="'+esc(v===''?'–':v)+'" readonly>';
@@ -827,8 +929,9 @@ function stepPanel(c, used){
     else w=note('ใส่วันที่ลูกค้ารับสินค้า เพื่อนับกำหนดยื่นเคลม 3 วัน');
     return tag+'<h2>รอลูกค้ายื่นเคลมผ่านเว็บ NIM</h2>'+w+
       '<div class="subhead" style="border:none;padding:0;color:var(--primary-ink)">ลูกค้ายื่นเคลมแล้ว</div>'+
-      fgrid(['cust_claim_date','nim_claim_no','goods_received_date','goods_value'],c,used,{ goods_value:{ noReq:true, hint:'ตามที่ลูกค้ายื่นเคลม' } })+
-      acts(abtn('customer_filed','ลูกค้ายื่นเคลมแล้ว → พิจารณาเงื่อนไข','primary'))+
+      (c.prescreen==='เข้าเงื่อนไข' ? note('พิจารณาแล้วว่า<b>เข้าเงื่อนไข</b> (ตอนเปิดเคส) · ลูกค้ายื่นเคลมแล้วกดปุ่มเดียว ไป <b>กำลังเคลม</b> เลย','good') : '')+
+      fgrid(['cust_claim_date','nim_claim_no','goods_received_date','goods_value'],c,used,{ goods_value: c.prescreen==='เข้าเงื่อนไข' ? { req:true, hint:'ต้องกรอก · ใช้ตั้งต้นยอดเรียกร้อง' } : { noReq:true, hint:'ตามที่ลูกค้ายื่นเคลม' } })+
+      acts(abtn('customer_filed', c.prescreen==='เข้าเงื่อนไข' ? 'ลูกค้ายื่นเคลมแล้ว → เริ่มเคลม' : 'ลูกค้ายื่นเคลมแล้ว → พิจารณาเงื่อนไข','primary'))+
       '<div class="subhead">ปิดเคสก่อนเริ่มเคลม</div>'+
       fgrid(['not_eligible_reason'],c,used,{ not_eligible_reason:{ hint:'กรอกเมื่อกด “ปิด · ไม่เข้าเงื่อนไข”' } })+
       acts(abtn('close_noclaim','ปิด · ไม่เคลม','dark')+abtn('not_eligible','ปิด · ไม่เข้าเงื่อนไข','dark')+abtn('close_nofile','ปิด · ลูกค้าไม่ยื่นเคลม','dark')+abtn('save','บันทึก'))+
@@ -845,9 +948,19 @@ function stepPanel(c, used){
   if(k==='C2'){
     return tag+'<h2>กำลังเคลม · 2 เรื่องทำคู่กัน ไม่ต้องรอกัน</h2><div class="desc" style="font-size:13px">โอนเงินลูกค้าได้เลย ไม่ต้องรอผลหรือเงินจาก KEX</div>'+
       '<div class="lanes">'+kexLane(c,used)+nimLane(c,used)+'</div>'+gapNote(c)+
-      acts(abtn('save','บันทึกข้อมูล'));
+      acts(abtn('save','บันทึกข้อมูล'))+cancelBox(c,used);
   }
   return '';
+}
+/* ยกเลิกเคลม: เข้าเงื่อนไขแล้วแต่ตรวจพบว่าไม่ต้องเคลม · ทำได้ก่อนยื่น KEX และก่อนโอนลูกค้า */
+function cancelBox(c,used){
+  var ks=code(c.kex_track), ns=code(c.nim_track);
+  if((ks!=='K1' && ks!=='KN') || ns!=='N2') return '';
+  if(!c.not_eligible_reason && ks==='KN' && /ไม่เสียหาย/.test(c.reject_reason||'')) c.not_eligible_reason=c.reject_reason;
+  return '<div class="subhead">ยกเลิกเคลม (ยังไม่ได้ยื่น KEX · ยังไม่ได้โอนลูกค้า)</div>'+
+    '<div class="desc" style="font-size:13px">ใช้เมื่อตรวจพบภายหลังว่าไม่ต้องเคลม เช่น สินค้าไม่เสียหาย ลูกค้ารับสินค้ากลับเรียบร้อย → ปิดเคสเป็น <b>ไม่เข้าเงื่อนไข</b> · ไม่นับในยอดค้างโอนหรือ NIM รับภาระ</div>'+
+    fgrid(['not_eligible_reason'],c,used,{ not_eligible_reason:{ l:'เหตุผลที่ยกเลิกเคลม', req:true, hint:'เช่น สินค้าไม่เสียหาย ลูกค้ารับสินค้ากลับเรียบร้อย' } })+
+    acts(abtn('cancel_nodamage','ยกเลิกเคลม · สินค้าไม่เสียหาย → ปิดเคส','dark'));
 }
 function lane(title, st, body, active){
   return '<div class="lane'+(active?' active':'')+'"><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between"><h3>'+title+'</h3>'+chip(st)+'</div>'+body+'</div>';
@@ -944,7 +1057,7 @@ function infoSections(c, used){
   var k=code(c.status), src2=c.source===SRC[1];
   var secs=[];
   secs.push(['ข้อมูลเคส · เหตุการณ์', ['owner'].concat(src2?[]:['kex_notice_date'], ['tracking_no','nim_tracking_no','bill_date','kex_send_date','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','product_group','size','goods_value','incident_detail','report_month'])]);
-  if(!src2) secs.push(['ตรวจเงื่อนไขเบื้องต้น', ['prescreen'].concat(['cc_action','claim_intent','cc_date'].filter(function(x){ return c[x]; }))]);
+  if(!src2) secs.push(['ผลพิจารณาเงื่อนไข (ตอนเปิดเคส)', ['prescreen'].concat(['cc_action','claim_intent','cc_date'].filter(function(x){ return c[x]; }))]);
   if(src2 || c.cust_claim_date || c.nim_claim_no || (k!=='A1' && k!=='X4' && k!=='X6')){
     var cu=['cust_claim_date','nim_claim_no','goods_received_date'];
     if(c.not_eligible_reason) cu.push('not_eligible_reason');
@@ -972,18 +1085,22 @@ function viewForm(){
   var back='<button type="button" class="btn" id="f-back" style="align-self:flex-start">← กลับไปรายการเคส</button>';
 
   if(isNew){
-    var src=c.source, keys=['source','owner'];
-    if(src===SRC[0]) keys=keys.concat(['kex_notice_date','prescreen'], c.prescreen==='ไม่เข้าเงื่อนไข'?['not_eligible_reason']:[]);
-    if(src===SRC[1]) keys=keys.concat(['cust_claim_date','nim_claim_no','goods_received_date']);
+    var src=c.source, keys=['source','owner'], ps=c.prescreen, filed=src===SRC[1] || !!c.cust_claim_date;
+    var PS=['เข้าเงื่อนไข','ไม่เข้าเงื่อนไข','รอตรวจสอบ'];
+    if(src===SRC[0]) keys=keys.concat(['kex_notice_date']);
+    if(src) keys=keys.concat(['cust_claim_date','nim_claim_no','goods_received_date','prescreen'], ps===PS[1]?['not_eligible_reason']:[]);
     keys=keys.concat(['tracking_no','nim_tracking_no','bill_date','kex_send_date','incident_type','damage_type','cause','incident_location','origin_dc','sender','product_desc','product_group','size','goods_value','incident_detail']);
-    var gvOpt = src===SRC[1] ? {} : { goods_value:{ noReq:true, hint:'ยังไม่รู้ เว้นว่างได้ · ต้องกรอกก่อนกด “เข้าเงื่อนไข”' } };
-    var route = src===SRC[1] ? note('ลูกค้ายื่นเคลมเอง (KEX ไม่ได้แจ้ง) → เปิดเคสแล้วไป <b>รอพิจารณาเงื่อนไข</b> · ระบบนับเป็นเคสที่ KEX ไม่ได้แจ้ง','good')
-      : src===SRC[0] ? (c.prescreen==='ไม่เข้าเงื่อนไข'
-          ? note('ทีม Claim ตรวจเบื้องต้นแล้ว<b>ไม่เข้าเงื่อนไข</b> → บันทึกแล้ว<b>ปิดเคส · ไม่เข้าเงื่อนไข</b>ทันที · ใส่เหตุผลด้วย','good')
-          : c.claim_intent==='ไม่ประสงค์เคลม'
-          ? note('KEX แจ้ง · ลูกค้า<b>ไม่ประสงค์เคลม</b> → บันทึกแล้ว<b>ปิดเคส · ไม่เคลม</b>ทันที','good')
-          : note('KEX แจ้งทาง Email → เปิดเคสแล้วไป <b>รอลูกค้ายื่นเคลม</b> · ลูกค้าไม่เคลม / ไม่ยื่น กดปิดได้ในหน้าเคส','good'))
-      : note('เลือกช่องทางรับรู้เคสก่อน: KEX แจ้งทาง Email หรือ ลูกค้ายื่นเคลมผ่านเว็บ NIM เอง');
+    var startNow = ps===PS[0] && filed;
+    var gvOpt = { goods_value: startNow ? { req:true, hint:'ต้องกรอก · ใช้ตั้งต้นยอดเรียกร้อง' } : { noReq:true, hint:'ยังไม่รู้ เว้นว่างได้ · ต้องกรอกก่อนเริ่มเคลม' } };
+    if(src===SRC[0]){ gvOpt.cust_claim_date={ noReq:!startNow, req:startNow, hint:'กรอกเมื่อลูกค้ายื่นเคลมเว็บ NIM แล้ว · ยังไม่ยื่นเว้นว่าง' }; gvOpt.nim_claim_no={ noReq:!startNow, req:startNow }; }
+    var route = !src ? note('เลือกช่องทางรับรู้เคสก่อน: KEX แจ้งทาง Email หรือ ลูกค้ายื่นเคลมผ่านเว็บ NIM เอง')
+      : ps===PS[1] ? note('พิจารณาแล้ว<b>ไม่เข้าเงื่อนไข</b> → บันทึกแล้ว<b>ปิดเคส · ไม่เข้าเงื่อนไข</b>ทันที · ใส่เหตุผลด้วย','good')
+      : (src===SRC[0] && c.claim_intent==='ไม่ประสงค์เคลม') ? note('KEX แจ้ง · ลูกค้า<b>ไม่ประสงค์เคลม</b> → บันทึกแล้ว<b>ปิดเคส · ไม่เคลม</b>ทันที','good')
+      : !ps ? note('เลือก <b>ผลพิจารณาเงื่อนไข</b>: เข้าเงื่อนไข / ไม่เข้าเงื่อนไข / รอตรวจสอบ')
+      : startNow ? note('<b>เข้าเงื่อนไข</b> และลูกค้ายื่นเคลมแล้ว → บันทึกแล้วไป <b>กำลังเคลม</b> ทันที (รอแจ้งเคลม KEX + รอโอนลูกค้า)','good')
+      : ps===PS[0] ? note('<b>เข้าเงื่อนไข</b> · ลูกค้ายังไม่ยื่นเคลม → ไป <b>รอลูกค้ายื่นเคลม</b> · พอลูกค้ายื่น กดครั้งเดียวไป <b>กำลังเคลม</b>','good')
+      : filed ? note('<b>รอตรวจสอบ</b> → ไป <b>รอพิจารณาเงื่อนไข</b> · ตัดสินในหน้าเคสเมื่อข้อมูลครบ','good')
+      : note('<b>รอตรวจสอบ</b> · ลูกค้ายังไม่ยื่นเคลม → ไป <b>รอลูกค้ายื่นเคลม</b> แล้วพิจารณาเงื่อนไขหลังลูกค้ายื่น','good');
     var gw = (src===SRC[1] && lateFiling(c)) ? note(WARN_ICON+' ลูกค้ายื่นเคลมหลังรับสินค้า '+filingGap(c)+' วัน (เกินกำหนด 3 วัน)','bad') : '';
     return back+'<div class="head"><div class="title"><h1>เปิดเคสใหม่</h1><div class="desc">ระบบออกเลขเคสให้อัตโนมัติ · ช่องที่มี * ต้องกรอก</div></div></div>'+
       '<section class="card sec current">'+route+gw+fgrid(keys,c,used,gvOpt)+acts(abtn('save','บันทึกเปิดเคส','primary'))+msg+'</section>'+datalists();
@@ -1182,20 +1299,64 @@ function viewSummary(){
       : '<div class="card empty">ยังไม่มีเคสในรอบนี้</div>')+
   '</div>'+pop;
 }
-function saveSummaryImage(){ saveImage('sum-sheet','สรุป_KEX_'+S.sum.month+'.png'); }
-function saveImage(elId, fname){
+function a4Summary(){
+  var X=SUMX, cur=X.cur, N=cur.length, L=cur.filter(isLost).length;
+  var thY=function(ym){ return TH_M[Number(ym.slice(5,7))-1]+' '+(Number(ym.slice(0,4))+543); };
+  var cmpTd=function(r){ if(!X.showCmp) return ''; var d=r.rows.length-(r.prev||0); return '<td>'+(d===0?'<span class="eq">=</span>':'<span class="'+(d>0?'up':'dn')+'">'+(d>0?'▲':'▼')+Math.abs(d)+'</span>')+'</td>'; };
+  var head=function(first,w){ return '<colgroup><col><col style="width:30px"><col style="width:34px"><col style="width:40px"><col style="width:40px"><col style="width:42px">'+(X.showCmp?'<col style="width:40px">':'')+'</colgroup><thead><tr><th>'+first+'</th><th>บิล</th><th>กล่อง</th><th>เสียหาย</th><th>สูญหาย*</th><th>%</th>'+(X.showCmp?'<th>เทียบ '+esc(X.prevLabel)+'</th>':'')+'</tr></thead>'; };
+  var row=function(r,mx,cls){ var k=r.rows.length, l=r.rows.filter(isLost).length; return '<tr class="'+(cls||(k===mx&&k?'top':''))+'"><td>'+esc(r.name)+'</td><td>'+billCount(r.rows)+'</td><td><b>'+k+'</b></td><td>'+(k-l)+'</td><td>'+l+'</td><td>'+pct(k,N)+'</td>'+cmpTd(r)+'</tr>'; };
+  var foot='<tfoot><tr><td>รวม</td><td>'+billCount(cur)+'</td><td>'+N+'</td><td>'+(N-L)+'</td><td>'+L+'</td><td>'+(N?'100%':'–')+'</td>'+(X.showCmp?'<td></td>':'')+'</tr></tfoot>';
+  var tbl=function(title,first,list,limit){ var nz=list.filter(function(r){ return r.rows.length; }), mx=Math.max.apply(null,nz.map(function(r){return r.rows.length;}).concat([0]));
+    var shown=limit?nz.slice(0,limit):nz, rest=limit?nz.slice(limit):[];
+    var oth=''; if(rest.length){ var rs=[].concat.apply([],rest.map(function(r){return r.rows;})); oth=row({name:'อื่น ๆ (อีก '+rest.length+')',rows:rs,prev:rest.reduce(function(s2,r){return s2+(r.prev||0);},0)},-1,'oth'); }
+    return '<div><h3>'+title+'</h3><table>'+head(first)+'<tbody>'+shown.map(function(r){ return row(r,mx); }).join('')+oth+'</tbody>'+foot+'</table></div>'; };
+  /* ตารางไขว้ */
+  var cg=X.cg, cols=X.cols.filter(function(i){ return cur.some(function(c){ return sizeRange(c.size)===i; }); }), cmax=1;
+  cg.forEach(function(g){ cols.forEach(function(i){ var n=g.rows.filter(function(c){ return sizeRange(c.size)===i; }).length; if(n>cmax) cmax=n; }); });
+  var cross='<div><h3>กลุ่มสินค้า × ช่วง Size <span style="font-weight:400;color:#6B7280;font-size:10px">(จำนวนกล่อง)</span></h3><table class="x"><colgroup><col>'+cols.map(function(){return '<col style="width:34px">';}).join('')+'<col style="width:30px"></colgroup><thead><tr><th>กลุ่มสินค้า</th>'+cols.map(function(i){ return '<th style="text-align:center">'+(i==null?'ไม่ระบุ':rangeName(i).replace('N','').replace('–N','–'))+'</th>'; }).join('')+'<th>รวม</th></tr></thead><tbody>'+
+    cg.map(function(g){ return '<tr><td>'+esc(g.name)+'</td>'+cols.map(function(i){ var n=g.rows.filter(function(c){ return sizeRange(c.size)===i; }).length; if(!n) return '<td class="c0">·</td>'; var a=Math.sqrt(n/cmax);
+      return '<td class="c" style="background:rgba(44,100,172,'+(0.12+0.88*a).toFixed(2)+');color:'+(a>0.55?'#fff':'#18212B')+'">'+n+'</td>'; }).join('')+'<td><b>'+g.rows.length+'</b></td></tr>'; }).join('')+
+    '</tbody><tfoot><tr><td>รวม</td>'+cols.map(function(i){ return '<td style="text-align:center">'+cur.filter(function(c){ return sizeRange(c.size)===i; }).length+'</td>'; }).join('')+'<td>'+N+'</td></tr></tfoot></table></div>';
+  /* ลูกค้า Top 5 */
+  var snd=X.snd, s5=snd.slice(0,5), sr=snd.slice(5), srs=[].concat.apply([],sr.map(function(r){return r.rows;}));
+  var sndT='<div><h3>ลูกค้า (ผู้ส่ง) 5 อันดับ <span style="font-weight:400;color:#6B7280;font-size:10px">เรียงตามกล่อง · ซ้ำ = มากกว่า 1 บิล</span></h3><table><colgroup><col><col style="width:52px"><col style="width:30px"><col style="width:34px"><col style="width:42px"></colgroup><thead><tr><th>ผู้ส่ง</th><th>ประเภท</th><th>บิล</th><th>กล่อง</th><th>%</th></tr></thead><tbody>'+
+    s5.map(function(r){ var nb=billCount(r.rows); return '<tr><td>'+esc(r.name)+(nb>1?'<span class="tagr">ซ้ำ</span>':'')+'</td><td>'+esc(r.rows[0].customer_type||'–')+'</td><td>'+nb+'</td><td><b>'+r.rows.length+'</b></td><td>'+pct(r.rows.length,N)+'</td></tr>'; }).join('')+
+    (sr.length?'<tr class="oth"><td>อื่น ๆ (อีก '+sr.length+' ราย)</td><td></td><td>'+billCount(srs)+'</td><td>'+srs.length+'</td><td>'+pct(srs.length,N)+'</td></tr>':'')+
+    '</tbody><tfoot><tr><td>รวม</td><td></td><td>'+billCount(cur)+'</td><td>'+N+'</td><td>'+(N?'100%':'–')+'</td></tr></tfoot></table></div>';
+  var byT=function(t){ return cur.filter(function(c){ return c.incident_type===t; }); };
+  var tile=function(l,v,s2,cls,p){ return '<div class="t '+(cls||'')+'"><div class="l">'+l+'</div><div class="v">'+v+(p?'<small>'+p+'</small>':'')+'</div><div class="s">'+s2+'</div></div>'; };
+  var tiles=tile('บิล NIM ที่พบปัญหา',billCount(cur),'บิล','m')+tile('บิล KEX ที่พบปัญหา',N,'เลข KEX (1 เลข = 1 กล่อง)','m')+
+    ['เสียหาย','สูญหาย','สูญหายบางส่วน'].map(function(t){ var x=byT(t); return tile(t,x.length,'บิล KEX · '+billCount(x)+' บิล NIM','r',pct(x.length,N)); }).join('');
+  return '<div class="a4">'+
+    '<div class="hd"><div><div style="display:flex;align-items:center;gap:14px"><img class="lg" src="'+LOGO_SRC+'" alt="NiM Express" style="margin:0"><span class="pn" style="margin:0"><b>KEX</b> · DAMAGE &amp; LOST</span></div><h1>สรุปสินค้าเสียหาย – สูญหาย จากการส่งต่อ KEX</h1><div class="sub">รอบข้อมูล '+thY(X.month)+(X.openM?' (ยังไม่จบเดือน)':'')+'</div></div>'+
+    '<div class="rt">บิล KEX = จำนวนเลข KEX (กล่อง)<br>% คิดจากจำนวนกล่อง · * สูญหาย = สูญหาย + สูญหายบางส่วน'+(X.showCmp?'<br>เทียบ '+esc(X.prevLabel)+' = จำนวนกล่องเทียบเดือนก่อน':'')+'</div></div>'+
+    '<div class="tl">'+tiles+'</div>'+
+    (N?'<div class="g3">'+tbl('แยกตามกลุ่มสินค้า','กลุ่มสินค้า',X.groups)+tbl('แยกตามช่วง Size','ช่วง Size',X.sizes)+'</div>'+cross+
+      '<div class="g2">'+tbl('DC ต้นทาง 5 อันดับ','DC ต้นทาง',X.dcs,5)+sndT+'</div>':'<div style="padding:40px;text-align:center;color:#6B7280">ยังไม่มีเคสในรอบนี้</div>')+
+    '<div class="ft"><span>แสดงเฉพาะแถวที่มีเคส · แถวสีส้ม = มากที่สุด'+(X.openM?' · เดือนนี้ยังไม่จบ ตัวเลขยังเพิ่มได้':'')+'</span><span>ข้อมูล ณ '+thD(S.boot.today)+' · KEX · DAMAGE &amp; LOST</span></div>'+
+  '</div>';
+}
+function saveSummaryImage(){
+  if(!SUMX) return;
+  var w=document.getElementById('a4wrap'); if(!w){ w=document.createElement('div'); w.id='a4wrap'; document.body.appendChild(w); }
+  w.innerHTML='<div id="a4sheet">'+a4Summary()+'</div>';
+  var done=function(){ var x=document.getElementById('a4wrap'); if(x) x.innerHTML=''; };
+  saveImage('a4sheet','สรุป_KEX_'+S.sum.month+'_A4.png', done, '#FFFFFF');
+}
+
+function saveImage(elId, fname, after, bg){
   var go2=function(){
     var el=document.getElementById(elId); if(!el) return;
     document.body.classList.add('img-mode');
-    window.html2canvas(el,{ scale:2, backgroundColor:'#F5F6F8' }).then(function(cv){
+    window.html2canvas(el,{ scale:2, backgroundColor:bg||'#F5F6F8', scrollX:0, scrollY:0 }).then(function(cv){
       cv.toBlob(function(blob){
         var u=URL.createObjectURL(blob), a=document.createElement('a');
         a.href=u; a.download=fname; document.body.appendChild(a); a.click(); a.remove();
         setTimeout(function(){ URL.revokeObjectURL(u); },2000);
         toast('บันทึกรูปแล้ว');
       },'image/png');
-      document.body.classList.remove('img-mode');
-    }).catch(function(e){ document.body.classList.remove('img-mode'); toast('บันทึกรูปไม่สำเร็จ: '+(e.message||e)); });
+      document.body.classList.remove('img-mode'); if(after) after();
+    }).catch(function(e){ document.body.classList.remove('img-mode'); if(after) after(); toast('บันทึกรูปไม่สำเร็จ: '+(e.message||e)); });
   };
   if(window.html2canvas) return go2();
   toast('กำลังเตรียมรูป…');
@@ -1397,8 +1558,7 @@ function bind(){
   document.querySelectorAll('[data-open]').forEach(function(b){ b.addEventListener('click',function(){ go('form', b.dataset.open); }); });
   if(S.page==='dashboard' && $('d-month')){
     $('d-month').onchange=function(e){ S.dash.month=e.target.value; render(); };
-    $('d-print').onclick=function(){ window.print(); };
-    $('d-img').onclick=function(){ saveImage('dash-sheet','KEX_Damage_Lost_'+S.dash.month+'.png'); };
+    $('d-img').onclick=saveDashImage;
     document.querySelectorAll('[data-metric]').forEach(function(b){ b.onclick=function(){ S.dash.metric=b.dataset.metric; render(); }; });
     document.querySelectorAll('.dbars [data-month]').forEach(function(b){ b.onclick=function(){ S.dash.month=b.dataset.month; render(); }; });
   }
@@ -1481,7 +1641,7 @@ function showLogin(note){
   S.boot=null;
   var m=document.getElementById('main');
   m.innerHTML='<div class="card pad" style="max-width:440px;width:100%;margin:8vh auto 0;display:flex;flex-direction:column;gap:16px">'+
-    '<div><div style="font-size:22px;font-weight:700;font-style:italic"><span style="color:#2C64AC">NIM</span> <span style="color:#6B7280">·</span> <span style="color:#F07D1A">KEX</span> <span style="color:#6B7280">Claim</span></div><div class="desc">เข้าสู่ระบบด้วยรหัสผ่านทีม</div></div>'+
+    '<div><img src="'+LOGO_SRC+'" alt="NiM Express" style="display:block;width:240px;max-width:100%;height:auto;margin-bottom:8px"><div style="font-size:14px;font-weight:700;letter-spacing:1.4px;color:#14335E"><span style="color:#F07D1A">KEX</span> · DAMAGE &amp; LOST</div><div class="desc" style="margin-top:10px">เข้าสู่ระบบด้วยรหัสผ่านทีม</div></div>'+
     (note?'<div class="msg note">'+esc(note)+'</div>':'')+
     '<label class="f" for="lg-pass"><span class="lab">รหัสผ่านทีม</span><input type="password" id="lg-pass" autocomplete="current-password"></label>'+
     '<button type="button" class="btn primary" id="lg-go" style="justify-content:center">ถัดไป</button>'+
