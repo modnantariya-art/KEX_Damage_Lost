@@ -1510,7 +1510,7 @@ function viewReconcile(){
   var mFoot=mKeys.length>1?'<tfoot>'+mLine(claimed,'รวม',1)+'</tfoot>':'';
   RECX=function(){
     var M=R.month==='all'?'ทุกเดือน':mLabel(R.month);
-    var ml=[['เลขเคส','case_id'],['รอบเดือน',function(c){return reportMonth(c)||'';}],['Tracking KEX','tracking_no'],['ผู้ส่ง','sender'],['เคลมกับ KEX',function(c){return stTxt(c.kex_track);}],['โอนเงินลูกค้า',function(c){return stTxt(c.nim_track);}],['ผล KEX','kex_decision'],
+    var ml=[['เลขเคส','case_id'],['รอบเดือน',function(c){return reportMonth(c)||'';}],['Tracking KEX','tracking_no'],['เลขบิล NIM',function(c){return c.nim_tracking_no==null?'':String(c.nim_tracking_no);}],['ผู้ส่ง','sender'],['เคลมกับ KEX',function(c){return stTxt(c.kex_track);}],['โอนเงินลูกค้า',function(c){return stTxt(c.nim_track);}],['ผล KEX','kex_decision'],
       ['ยอดเรียกร้อง',function(c){return nOr(c.claim_amount);}],['ยอดอนุมัติ',function(c){return nOr(c.approved_amount);}],['รับจริง KEX',function(c){return nOr(c.kex_paid_amount);}],['โอนลูกค้า',function(c){return nOr(c.cust_paid_amount);}],
       ['วันที่แจ้งเคลม KEX','claim_submit_date'],['วันที่รับเงิน KEX','kex_paid_date'],['วันที่โอนลูกค้า','cust_paid_date']];
     var tabSheet=function(name,arr,extra){ var cols=ml.concat(extra||[]); return {name:name,title:name+' · '+M+' · '+arr.length+' เคส',head:cols.map(function(k){return k[0];}),rows:caseRows(arr,cols),
