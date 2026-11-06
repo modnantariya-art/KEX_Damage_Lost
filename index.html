@@ -924,10 +924,13 @@ function stepPanel(c, used){
   var k=code(c.status);
   var tag='<span class="tag">งานที่ค้าง · '+esc(tasksOf(c).map(function(t){return TASK[t];}).join(' + ') || nameOf(c.status))+'</span>';
   if(k==='A1'){
-    var gr=c.goods_received_date, d=gr?daysSince(gr):null, w;
-    if(gr && d>3) w=note(WARN_ICON+' ลูกค้ารับสินค้าเมื่อ '+fmtD(gr)+' ผ่านมา '+d+' วัน <b>เกินกำหนด 3 วันแล้ว</b> — ถ้าลูกค้าไม่ยื่น กด “ปิด · ลูกค้าไม่ยื่นเคลม” ได้','bad');
-    else if(gr) w=note('ลูกค้ารับสินค้าเมื่อ '+fmtD(gr)+' · ยื่นเคลมได้อีก '+Math.max(0,3-d)+' วัน','good');
-    else w=note('ใส่วันที่ลูกค้ารับสินค้า เพื่อนับกำหนดยื่นเคลม 3 วัน');
+    var ACD=(S.boot&&S.boot.autoCloseDays)||5, op=String(c.opened_at||'').slice(0,10), w;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(op)){
+      var dd=new Date(op+'T00:00:00'); dd.setDate(dd.getDate()+ACD);
+      var due=dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0'), left=ACD-daysSince(op);
+      w = left<=1 ? note(WARN_ICON+' บันทึกเคสเมื่อ '+fmtD(op)+' · ถ้าลูกค้ายังไม่ยื่นเคลม ระบบจะ<b>ปิดอัตโนมัติเป็น “ลูกค้าไม่ยื่นเคลม”</b> เช้าวันที่ '+fmtD(due)+' (08:00)','bad')
+        : note('บันทึกเคสเมื่อ '+fmtD(op)+' · ลูกค้ายื่นเคลมได้อีก '+left+' วัน · ถ้าไม่ยื่น ระบบปิดอัตโนมัติเช้าวันที่ '+fmtD(due),'good');
+    } else w=note('เคสนี้ไม่มีวันที่บันทึกเคส · ระบบจะไม่ปิดอัตโนมัติ');
     return tag+'<h2>รอลูกค้ายื่นเคลมผ่านเว็บ NIM</h2>'+w+
       '<div class="subhead" style="border:none;padding:0;color:var(--primary-ink)">ลูกค้ายื่นเคลมแล้ว</div>'+
       (c.prescreen==='เข้าเงื่อนไข' ? note('พิจารณาแล้วว่า<b>เข้าเงื่อนไข</b> (ตอนเปิดเคส) · ลูกค้ายื่นเคลมแล้วกดปุ่มเดียว ไป <b>กำลังเคลม</b> เลย','good') : '')+
@@ -936,7 +939,7 @@ function stepPanel(c, used){
       '<div class="subhead">ปิดเคสก่อนเริ่มเคลม</div>'+
       fgrid(['not_eligible_reason'],c,used,{ not_eligible_reason:{ hint:'กรอกเมื่อกด “ปิด · ไม่เข้าเงื่อนไข”' } })+
       acts(abtn('close_noclaim','ปิด · ไม่เคลม','dark')+abtn('not_eligible','ปิด · ไม่เข้าเงื่อนไข','dark')+abtn('close_nofile','ปิด · ลูกค้าไม่ยื่นเคลม','dark')+abtn('save','บันทึก'))+
-      '<div class="desc" style="font-size:13px">ไม่เคลม = ลูกค้าไม่ประสงค์เคลม · ไม่เข้าเงื่อนไข = ทีม Claim ตรวจแล้วไม่ผ่าน · ลูกค้าไม่ยื่นเคลม = เกินกำหนดแล้วไม่ยื่น</div>';
+      '<div class="desc" style="font-size:13px">ไม่เคลม = ลูกค้าไม่ประสงค์เคลม · ไม่เข้าเงื่อนไข = ทีม Claim ตรวจแล้วไม่ผ่าน · ลูกค้าไม่ยื่นเคลม = เกินกำหนดแล้วไม่ยื่น (ระบบปิดให้อัตโนมัติเมื่อครบ '+ACD+' วันหลังบันทึกเคส)</div>';
   }
   if(k==='C1'){
     var gap=filingGap(c);
